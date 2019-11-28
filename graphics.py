@@ -1,4 +1,3 @@
-from common_classes import *
 import cv2
 import numpy as np
 from math import *
@@ -11,8 +10,8 @@ import time
 
 root = tk.Tk()
 fr = tk.Frame(root)
-root.geometry('64x48')
-canv = tk.Canvas(root,bg='black')
+root.geometry('640x480')
+canv = tk.Canvas(root,bg='blue')
 canv.pack(fill = tk.BOTH,expand = 1)
 
 
@@ -51,10 +50,9 @@ def v_rot(x):
 
 #what we control
 class Player:
-	def __init__(self, look, position, health):
+	def __init__(self, look, position):
 		self.look = look
 		self.position = position
-		self.health = health
 		self.forward = 0
 		self.right = 0
 		self.rot = 0
@@ -68,10 +66,10 @@ class Entity:
 #map object
 class Scene:
 	def __init__(self, filename = None):
-		self.width = 64
-		self.height = 48
+		self.width = 640
+		self.height = 480
 		self.camx = pi / 3
-		self.camy = self.camx * 1080 / 1920
+		self.camy = self.camx * 480 / 640
 		with open(filename, 'r') as file:
 			s = file.read()
 		self.fw, self.fh = [int(x) for x in s.split('\n')[0].split(' ')]
@@ -83,7 +81,7 @@ class Scene:
 				self.field[x][y] = tid
 			if command == 'player':
 				lx, ly, x, y = [float(x) for x in args.split(' ')]
-				self.player = Player(v_norm(Vector2D(lx, ly)), Vector2D(x, y), PLAYER_HEALTH_DEFAULT)
+				self.player = Player(v_norm(Vector2D(lx, ly)), Vector2D(x, y))
 		
 		self.image = np.zeros((self.height, self.width, 3), np.uint8)
 		self.image2 = np.zeros((self.height * 2, self.width * 2, 3), np.uint8)
@@ -136,8 +134,11 @@ class Scene:
 					perpWallDist = (mapX - x.x + (1 - stepX) / 2) / to.x;
 				else:
 					perpWallDist = (mapY - x.y + (1 - stepY) / 2) / to.y;
-				lh = int(1 / perpWallDist / self.camy * self.height / 2)
-				brightness = abs(to.x if side == 0 else to.y)
+				lh = int(1 / (perpWallDist + 0.0001) / self.camy * self.height / 2)
+				if perpWallDist > 1:
+					brightness = abs(to.x if side == 0 else to.y) / perpWallDist
+				else:
+					brightness = abs(to.x if side == 0 else to.y)
 
 				if (side == 0):
 					wallX = x.y + perpWallDist * to.y;
@@ -216,6 +217,32 @@ def player_move():
 		a += 2 / 180 * pi
 		s.player.look = Vector2D(cos(a), sin(a))
 
+class minimap():
+	def __init__(self, scene, scenewidth = 0, sceneheight = 0):
+		#self.x = scenewidth
+		#self.y = sceneheight
+		self.scale = 2
+		self.a = 100
+		self.player = scene.player
+		self.field = scene.field
+		self.n = len(self.field)
+		self.k = len(self.field[0])
+		self.dx = self.a / self.n * self.scale
+		self.dy = self.a / self.k * self.scale
+		self.obzor = scene.camy
+		print(self.dx, self.dy)
+	def draw(self):
+		for i in range(self.n):
+			for j in range(self.k):
+				if self.field[i][j] == 0:
+					canv.create_rectangle(i * self.dx, j * self.dy, (i + 1) * self.dx, (j + 1) * self.dy, fill = 'red')
+					canv.update()
+
+		canv.create_line(self.player.position.x * self.a * self.scale / self.n, self.player.position.y * self.a * self.scale / self.k, self.player.position.x * self.a * self.scale / self.n + self.player.look.x * 10 * self.scale, self.player.position.y * self.a * self.scale / self.k + self.player.look.y * 10 * self.scale, width = 10, fill = 'blue')
+		root.after(50, self.draw)
+
+
+
 
 #main body
 if __name__ == "__main__":
@@ -225,7 +252,8 @@ if __name__ == "__main__":
 	begin = time.time()
 	canv.bind("<KeyPress>", move_detect)
 	canv.bind("<KeyRelease>", move_undetect)
-
+	mnmp = minimap(s)
+	mnmp.draw()
 
 	while True:
 		s.display()
