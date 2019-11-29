@@ -153,7 +153,7 @@ class Scene:
 
 #start moving
 def move_detect(event):
-	global player
+	global player, show_minimap
 	if event.char == 'w':
 		s.player.forward = 1
 		
@@ -172,9 +172,13 @@ def move_detect(event):
 	if event.char == 'e':
 		s.player.rot = -1
 
+	if event.char == 'm':
+		show_minimap = 1
+
+
 #stop moving
 def move_undetect(event):
-	global player, a
+	global player, a, show_minimap
 
 	if event.char == 'w':
 		s.player.forward = 0
@@ -193,6 +197,9 @@ def move_undetect(event):
 
 	if event.char == 'e':
 		s.player.rot = 0
+
+	if event.char == 'm':
+		show_minimap = 0
 
 #move itself
 def player_move():
@@ -222,7 +229,7 @@ class minimap():
 		#self.x = scenewidth
 		#self.y = sceneheight
 		self.scale = 2
-		self.a = 100
+		self.a = 400
 		self.player = scene.player
 		self.field = scene.field
 		self.n = len(self.field)
@@ -238,9 +245,8 @@ class minimap():
 					canv.create_rectangle(i * self.dx, j * self.dy, (i + 1) * self.dx, (j + 1) * self.dy, fill = 'red')
 					canv.update()
 
-		canv.create_line(self.player.position.x * self.a * self.scale / self.n, self.player.position.y * self.a * self.scale / self.k, self.player.position.x * self.a * self.scale / self.n + self.player.look.x * 10 * self.scale, self.player.position.y * self.a * self.scale / self.k + self.player.look.y * 10 * self.scale, width = 10, fill = 'blue')
-		root.after(50, self.draw)
-
+		canv.create_line(self.player.position.x * self.a * self.scale / self.n, self.player.position.y * self.a * self.scale / self.k, self.player.position.x * self.a * self.scale / self.n + self.player.look.x * 10 * self.scale, self.player.position.y * self.a * self.scale / self.k + self.player.look.y * 10 * self.scale, width = 5, fill = 'blue')
+		
 
 
 
@@ -253,10 +259,11 @@ if __name__ == "__main__":
 	canv.bind("<KeyPress>", move_detect)
 	canv.bind("<KeyRelease>", move_undetect)
 	mnmp = minimap(s)
+	show_minimap = 0
 	mnmp.draw()
 
 	while True:
-		s.display()
+		
 		#if n != -1:
 		#	print(n)
 		'''if n == 97:
@@ -277,7 +284,12 @@ if __name__ == "__main__":
 		frame += 1
 		if frame % 60 == 0:
 			print(frame / (time.time() - begin))
-		player_move()
+		
+		if show_minimap:
+			mnmp.draw()
+		else:
+			s.display()
+			player_move()
 
 	root.mainloop()
 
