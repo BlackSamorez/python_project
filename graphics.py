@@ -1,4 +1,3 @@
-import numpy as np
 from math import *
 import time
 from random import randrange as rnd,choice
@@ -125,6 +124,8 @@ class Scene:
 					break
 				if self.field[mapX][mapY] != -1:
 					hit = self.field[mapX][mapY]
+					if self.field[mapX][mapY] == 0:
+						self.field[mapX][mapY] = 1
 			
 			if hit != -1:
 				if side == 0:
@@ -145,7 +146,8 @@ class Scene:
 
 
 				
-				canv.create_line(x_, (self.height // 2 - lh), x_, (self.height // 2 + lh), fill=_from_rgb([int(120 * brightness), int(255 * brightness), int(0)]))
+				canv.create_line(x_, (self.height // 2 - lh), x_, (self.height // 2 + lh), fill=_from_rgb([int(255 * brightness), int(255 * brightness), int(255 * brightness)]))
+				#canv.create_line(x_, self.height, x_, 0, fill=_from_rgb([int(255 * brightness), int(255 * brightness), int(255 * brightness)]))
 		canv.update()
 
 #start moving
@@ -201,32 +203,32 @@ def move_undetect(event):
 #move itself
 def player_move():
 	global player, a
-	if s.player.forward == 1:
-		s.player.position = s.player.position + s.player.look * 0.05
+	if s.player.forward == 1 and s.field[floor(s.player.position.x + s.player.look.x * 0.1)][floor(s.player.position.y + s.player.look.y * 0.1)] == -1:
+		s.player.position = s.player.position + s.player.look * 0.1
 	
-	if s.player.forward == -1:
-		s.player.position = s.player.position - s.player.look * 0.05
+	if s.player.forward == -1 and s.field[floor(s.player.position.x - s.player.look.x * 0.1)][floor(s.player.position.y - s.player.look.y * 0.1)] == -1:
+		s.player.position = s.player.position - s.player.look * 0.1
 
-	if s.player.right == 1:
-		s.player.position = s.player.position - v_rot(s.player.look) * 0.05
+	if s.player.right == 1 and s.field[floor(s.player.position.x - v_rot(s.player.look).x * 0.1)][floor(s.player.position.y - v_rot(s.player.look).y * 0.1)] == -1:
+		s.player.position = s.player.position - v_rot(s.player.look) * 0.1
 	
-	if s.player.right == -1:
-		s.player.position = s.player.position + v_rot(s.player.look) * 0.05
+	if s.player.right == -1 and s.field[floor(s.player.position.x + v_rot(s.player.look).x * 0.1)][floor(s.player.position.y + v_rot(s.player.look).y * 0.1)] == -1:
+		s.player.position = s.player.position + v_rot(s.player.look) * 0.1
+
+
 
 	if s.player.rot == 1:
-		a -= 2 / 180 * pi
+		a -= 5 / 180 * pi
 		s.player.look = Vector2D(cos(a), sin(a))
 
 	if s.player.rot == -1:
-		a += 2 / 180 * pi
+		a += 5 / 180 * pi
 		s.player.look = Vector2D(cos(a), sin(a))
 
 class minimap():
 	def __init__(self, scene, scenewidth = 0, sceneheight = 0):
-		#self.x = scenewidth
-		#self.y = sceneheight
 		self.scale = 2
-		self.a = 400
+		self.a = 100
 		self.player = scene.player
 		self.field = scene.field
 		self.n = len(self.field)
@@ -238,7 +240,7 @@ class minimap():
 	def draw(self):
 		for i in range(self.n):
 			for j in range(self.k):
-				if self.field[i][j] == 0:
+				if self.field[i][j] == 1:
 					canv.create_rectangle(i * self.dx, j * self.dy, (i + 1) * self.dx, (j + 1) * self.dy, fill = 'red')
 					canv.update()
 
@@ -258,29 +260,13 @@ if __name__ == "__main__":
 	mnmp = minimap(s)
 	show_minimap = 0
 	mnmp.draw()
+	time1 = 0
 
 	while True:
-		
-		#if n != -1:
-		#	print(n)
-		'''if n == 97:
-			s.player.position = s.player.position - v_rot(s.player.look) * 0.5
-		if n == 119:
-			s.player.position = s.player.position + s.player.look * 0.5
-		if n == 100:
-			s.player.position = s.player.position + v_rot(s.player.look) * 0.5
-		if n == 115:
-			s.player.position = s.player.position - s.player.look * 0.5
-		if n == 81:
-			a -= 2 / 180 * pi
-			#print(1)
-			s.player.look = Vector2D(cos(a), sin(a))
-		if n == 83:
-			a += 2 / 180 * pi
-			s.player.look = Vector2D(cos(a), sin(a))'''
 		frame += 1
 		if frame % 60 == 0:
-			print(frame / (time.time() - begin))
+			print(60 / (time.time() - time1))
+			time1 = time.time()
 		
 		if show_minimap:
 			mnmp.draw()
