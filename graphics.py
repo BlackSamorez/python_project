@@ -1,4 +1,3 @@
-import cv2
 import numpy as np
 from math import *
 import time
@@ -83,9 +82,7 @@ class Scene:
 				lx, ly, x, y = [float(x) for x in args.split(' ')]
 				self.player = Player(v_norm(Vector2D(lx, ly)), Vector2D(x, y))
 		
-		self.image = np.zeros((self.height, self.width, 3), np.uint8)
-		self.image2 = np.zeros((self.height * 2, self.width * 2, 3), np.uint8)
-		self.bg = np.zeros((self.height, self.width, 3), np.uint8)
+		
 
 	def display(self):
 		canv.delete("all")
