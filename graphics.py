@@ -11,7 +11,7 @@ import time
 root = tk.Tk()
 fr = tk.Frame(root)
 root.geometry('640x480')
-canv = tk.Canvas(root,bg='blue')
+canv = tk.Canvas(root,bg='grey')
 canv.pack(fill = tk.BOTH,expand = 1)
 
 
@@ -148,7 +148,7 @@ class Scene:
 
 
 				
-				canv.create_line(x_, (self.height // 2 - lh), x_, (self.height // 2 + lh), fill=_from_rgb([int(0), int(255 * brightness), int(0)]))
+				canv.create_line(x_, (self.height // 2 - lh), x_, (self.height // 2 + lh), fill=_from_rgb([int(120 * brightness), int(255 * brightness), int(0)]))
 		canv.update()
 
 #start moving

@@ -49,6 +49,20 @@ def draw():
 	canv.update()
 	root.after(30, draw)
 
+def enter(event):
+	global field, n, k, dy, dx
+	with open('scene.cfg', 'r') as file:
+		s = file.read()
+	n, k = [int(x) for x in s.split('\n')[0].split(' ')]
+	field = [[-1] * k for x in range(n)]
+	for line in s.split('\n')[1:]:
+		command, args = line.split(' ', 1)
+		if command == 'brick':
+			x, y, tid = [int(x) for x in args.split(' ')]
+			field[x][y] = tid
+	dx = 1000 / n
+	dy = 1000 / k
+
 def exit(event):
 	global field, n, k
 	print('saved')
@@ -73,6 +87,7 @@ def exit(event):
 
 
 canv.bind('<Return>', exit)
+canv.bind('<Escape>', enter)
 canv.bind('<Motion>',targeting)
 canv.bind('<Button-1>', click)
 
