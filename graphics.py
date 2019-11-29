@@ -2,8 +2,6 @@ from math import *
 import time
 from random import randrange as rnd,choice
 import tkinter as tk
-import math
-import time
 
 
 root = tk.Tk()
@@ -80,79 +78,166 @@ class Scene:
 			if command == 'player':
 				lx, ly, x, y = [float(x) for x in args.split(' ')]
 				self.player = Player(v_norm(Vector2D(lx, ly)), Vector2D(x, y))
-		
+		self.targeted = Vector2D(0, 0)
+		self.trap_coord = [0, 0, 0, 0]
 		
 
 	def display(self):
-		canv.delete("all")
+		special = 0
 		x_old = -1
-		for x_ in range(0, self.width):
-			debug = (x_ == self.width // 2)
-
-			player = self.player
-			to = v_norm(v_rot(player.look) * sin(self.camx * x_ / self.width - 0.5) + player.look * cos(self.camx * x_ / self.width - 0.5))
-			ok_walls = []
-			x = player.position
-			deltaDistX = abs(1 / to.x)
-			deltaDistY = abs(1 / to.y)
-			mapX = int(x.x)
-			mapY = int(x.y)
-			if to.x < 0:
-				stepX = -1
-				sideDistX = (x.x - int(x.x)) * deltaDistX;
-			else:
-				stepX = 1
-				sideDistX = (-(x.x - int(x.x)) + 1) * deltaDistX;
-			if to.y < 0:
-				stepY = -1
-				sideDistY = (x.y - int(x.y)) * deltaDistY;
-			else:
-				stepY = 1
-				sideDistY = (-(x.y - int(x.y)) + 1) * deltaDistY;
-			hit = -1
-			side = 0
-			while hit == -1:
-				if sideDistX < sideDistY:
-					sideDistX += deltaDistX
-					mapX += stepX
-					side = 0
-				else:
-					sideDistY += deltaDistY
-					mapY += stepY
-					side = 1
-				if mapX < 0 or mapX >= self.fw or mapY < 0 or mapY >= self.fh:
-					break
-				if self.field[mapX][mapY] != -1:
-					hit = self.field[mapX][mapY]
-					if self.field[mapX][mapY] == 0:
-						self.field[mapX][mapY] = 1
+		x_ = 0
+		schitat = 0
+		veiw = 0
+		while x_ < self.width:
+			if x_ < 0: 
+				x_ = 0
+			to = v_norm(v_rot(self.player.look) * sin(self.camx * x_ / self.width - self.camx / 2) + self.player.look * cos(self.camx * x_ / self.width - self.camx / 2))
 			
-			if hit != -1:
-				if side == 0:
-					perpWallDist = (mapX - x.x + (1 - stepX) / 2) / to.x;
-				else:
-					perpWallDist = (mapY - x.y + (1 - stepY) / 2) / to.y;
-				lh = int(1 / (perpWallDist + 0.0001) / self.camy * self.height / 2)
-				if perpWallDist > 1:
-					brightness = abs(to.x if side == 0 else to.y) / perpWallDist
-				else:
-					brightness = abs(to.x if side == 0 else to.y)
+			tan = atan2(to.y, to.x)
+			x = floor(self.player.position.x)
+			y = floor(self.player.position.y)
+			i = 0
+			self.targeted = Vector2D(-1, -1)
+			targetx = [1000, 1000]
+			targety = [1000, 1000]
+			if to.x > 0:
+				i = 0
+				while x + i + 1 < self.fw and y + floor(tan * i) < self.fh and y + floor(tan * i) > 0:
+					if self.field[x + i][y + floor(tan * i)] != -1:
+						targetx = [int(x + i), y + floor(tan * i)]
+						schitat = 1
+						break
+					i +=1
+				i = 0
+				while y + i + 1 < self.fh and x + floor(i / tan) < self.fw and x + floor(i / tan) > 0:
+					if self.field[x + floor(i / tan)][y + i] != -1:
+						targety = [x + floor(i / tan), int(y + i)]
+						schitat = 1
+						break
+					i +=1
 
-				if (side == 0):
-					wallX = x.y + perpWallDist * to.y;
+				if targetx[0] < targety[0]:
+					self.targeted = Vector2D(targetx[0], targetx[1])
+					
 				else:
-					wallX = x.x + perpWallDist * to.x;
-				wallX = wallX - int(wallX)
+					self.targeted = Vector2D(targety[0], targety[1])
+			else:
+				i = 0
+				while x + i - 1 > 0 and y + floor(tan * i) > 0 and y + floor(tan * i) < self.fh:
+					if self.field[x + i][y + floor(tan * i)] != -1:
+						targetx = [int(x + i), y + floor(tan * i)]
+						schitat = 1
+						break
+					i = i - 1
+				i = 0
+				while y + i - 1 > 0 and x + floor(i / tan) > 0 and x + floor(i / tan) < self.fw:
+					if self.field[x + floor(i / tan)][y + i] != -1:
+						targety = [x + floor(i / tan), int(y + i)]
+						schitat = 1
+						break
+					i = i - 1
+
+				if targetx[0] < targety[0]:
+					self.targeted = Vector2D(targetx[0], targetx[1])
+					
+				else:
+					self.targeted = Vector2D(targety[0], targety[1])
+				if speccial != 1:
+					special = 1
+					canv.create_line(x_ , 0, x_ , 400, fill = 'blue', width = 10)
+
+	
+			if schitat:
+				#print(self.targeted)
+				self.targeted = self.targeted - self.player.position
+				sasas = 0
+				if self.targeted.x + 0.5 > 0:
+					if self.targeted.y + 0.5 > 0:
+						print(1)
+						sasas = 1
+						trap1 = (atan2(self.targeted.y, self.targeted.x + 1) - atan2(self.player.look.y, self.player.look.x)) * self.width / (self.camx / 2) + self.width / 2
+						dist1 = v_abs(self.targeted + Vector2D(1, 0))
+						trap2 = (atan2(self.targeted.y, self.targeted.x) - atan2(self.player.look.y, self.player.look.x)) * self.width / (self.camx / 2) + self.width / 2
+						dist2 = v_abs(self.targeted + Vector2D(0, 0))
+						trap3 = (atan2(self.targeted.y + 1, self.targeted.x) - atan2(self.player.look.y, self.player.look.x)) * self.width / (self.camx / 2) + self.width / 2
+						dist3 = v_abs(self.targeted + Vector2D(0, 1))
+					else:
+						print(2)
+						sasas = 2
+						trap1 = (atan2(self.targeted.y, self.targeted.x) - atan2(self.player.look.y, self.player.look.x)) * self.width / (self.camx / 2) + self.width / 2
+						dist1 = v_abs(self.targeted + Vector2D(0, 0))
+						trap2 = (atan2(self.targeted.y + 1, self.targeted.x) - atan2(self.player.look.y, self.player.look.x)) * self.width / (self.camx / 2) + self.width / 2
+						dist2 = v_abs(self.targeted + Vector2D(0, 1))
+						trap3 = (atan2(self.targeted.y + 1, self.targeted.x + 1) - atan2(self.player.look.y, self.player.look.x)) * self.width / (self.camx / 2) + self.width / 2
+						dist3 = v_abs(self.targeted + Vector2D(1, 1))
+				else:
+					if self.targeted.y > 0:
+						print(3)
+						sasas = 3
+						trap1 = (atan2(self.targeted.y + 1, self.targeted.x + 1) - atan2(self.player.look.y, self.player.look.x)) * self.width / (self.camx / 2) + self.width / 2
+						dist1 = v_abs(self.targeted + Vector2D(1, 1))
+						trap2 = (atan2(self.targeted.y, self.targeted.x + 1) - atan2(self.player.look.y, self.player.look.x)) * self.width / (self.camx / 2) + self.width / 2
+						dist2 = v_abs(self.targeted + Vector2D(1, 0))
+						trap3 = (atan2(self.targeted.y, self.targeted.x) - atan2(self.player.look.y, self.player.look.x)) * self.width / (self.camx / 2) + self.width / 2
+						dist3 = v_abs(self.targeted + Vector2D(0, 0))
+
+					else:
+						print(4)
+						sasas = 4
+						trap1 = (atan((self.targeted.y + 1) / self.targeted.x) - atan2(self.player.look.y, self.player.look.x)) * self.width / (self.camx / 2) + self.width / 2
+						dist1 = v_abs(self.targeted + Vector2D(0, 1))
+						trap2 = (atan((self.targeted.y + 1) /  (self.targeted.x + 1)) - atan2(self.player.look.y, self.player.look.x)) * self.width / (self.camx / 2) + self.width / 2
+						dist2 = v_abs(self.targeted + Vector2D(1, 1))
+						trap3 = (atan(self.targeted.y / (self.targeted.x + 1)) - atan2(self.player.look.y, self.player.look.x)) * self.width / (self.camx / 2) + self.width / 2
+						dist3 = v_abs(self.targeted + Vector2D(1, 0))
 
 
 				
-				canv.create_line(x_, (self.height // 2 - lh), x_, (self.height // 2 + lh), fill=_from_rgb([int(255 * brightness), int(255 * brightness), int(255 * brightness)]))
-				#canv.create_line(x_, self.height, x_, 0, fill=_from_rgb([int(255 * brightness), int(255 * brightness), int(255 * brightness)]))
+				trap1, trap2, trap3 = sorted([trap1, trap2, trap3])
+				mass = sorted([trap1, trap2, trap3])
+
+				print(sasas)
+
+				h1 = atan2(0.5, dist1) / (self.camy / 2) * self.height
+				h2 = atan2(0.5, dist2) / (self.camy / 2) * self.height
+				h3 = atan2(0.5, dist3) / (self.camy / 2) * self.height
+
+				if 0 == 0:
+					canv.create_polygon((trap1), (self.height / 2 + h1), (trap2), (self.height / 2 + h2), (trap2), (self.height / 2 - h2), (trap1), (self.height / 2 - h1), outline="black", fill = 'red', width = 1)
+					canv.create_polygon((trap2), (self.height / 2 + h2), (trap3), (self.height / 2 + h3), (trap3), (self.height / 2 - h3), (trap2), (self.height / 2 - h2), outline="black", fill = 'red', width = 1)
+					#canv.create_line(trap3, 0, trap3, 400, fill = 'green')
+					x_ = trap3 + 1
+					#print(x_)
+					#canv.create_line(x_, 0, x_ + 10, 400, fill = 'green')
+					schitat = 0
+				
+			
+			x_ += 1
+			canv.create_line(x_ , 0, x_ , 400, fill = 'green')
+			
+			
+			
+
+
+			'''if side == 0:
+				perpWallDist = (mapX - x.x + (1 - stepX) / 2) / to.x;
+			else:
+				perpWallDist = (mapY - x.y + (1 - stepY) / 2) / to.y;
+			lh = int(1 / (perpWallDist + 0.0001) / self.camy * self.height / 2)'''
+
+
 		canv.update()
+		time.sleep(0.01)
+		canv.delete("all")
+			
+
+
+		
+
 
 #start moving
 def move_detect(event):
-	global player, show_minimap
+	global s, show_minimap
 	if event.char == 'w':
 		s.player.forward = 1
 		
@@ -177,7 +262,7 @@ def move_detect(event):
 
 #stop moving
 def move_undetect(event):
-	global player, a, show_minimap
+	global s, a, show_minimap
 
 	if event.char == 'w':
 		s.player.forward = 0
@@ -202,17 +287,17 @@ def move_undetect(event):
 
 #move itself
 def player_move():
-	global player, a
-	if s.player.forward == 1 and s.field[floor(s.player.position.x + s.player.look.x * 0.1)][floor(s.player.position.y + s.player.look.y * 0.1)] == -1:
+	global s, a
+	if s.player.forward == 1 and s.field[floor(s.player.position.x + s.player.look.x * 1)][floor(s.player.position.y + s.player.look.y * 1)] == -1:
 		s.player.position = s.player.position + s.player.look * 0.1
 	
-	if s.player.forward == -1 and s.field[floor(s.player.position.x - s.player.look.x * 0.1)][floor(s.player.position.y - s.player.look.y * 0.1)] == -1:
+	if s.player.forward == -1 and s.field[floor(s.player.position.x - s.player.look.x * 1)][floor(s.player.position.y - s.player.look.y * 1)] == -1:
 		s.player.position = s.player.position - s.player.look * 0.1
 
-	if s.player.right == 1 and s.field[floor(s.player.position.x - v_rot(s.player.look).x * 0.1)][floor(s.player.position.y - v_rot(s.player.look).y * 0.1)] == -1:
+	if s.player.right == 1 and s.field[floor(s.player.position.x - v_rot(s.player.look).x * 1)][floor(s.player.position.y - v_rot(s.player.look).y * 1)] == -1:
 		s.player.position = s.player.position - v_rot(s.player.look) * 0.1
 	
-	if s.player.right == -1 and s.field[floor(s.player.position.x + v_rot(s.player.look).x * 0.1)][floor(s.player.position.y + v_rot(s.player.look).y * 0.1)] == -1:
+	if s.player.right == -1 and s.field[floor(s.player.position.x + v_rot(s.player.look).x * 1)][floor(s.player.position.y + v_rot(s.player.look).y * 1)] == -1:
 		s.player.position = s.player.position + v_rot(s.player.look) * 0.1
 
 
@@ -265,7 +350,7 @@ if __name__ == "__main__":
 	while True:
 		frame += 1
 		if frame % 60 == 0:
-			print(60 / (time.time() - time1))
+			#print(60 / (time.time() - time1))
 			time1 = time.time()
 		
 		if show_minimap:
