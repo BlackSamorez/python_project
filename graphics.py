@@ -2,13 +2,11 @@ from math import *
 import time
 from random import randrange as rnd,choice
 import tkinter as tk
-import math
-import time
 
 
 root = tk.Tk()
 fr = tk.Frame(root)
-root.geometry('640x480')
+root.geometry('1920x1080')
 canv = tk.Canvas(root,bg='grey')
 canv.pack(fill = tk.BOTH,expand = 1)
 
@@ -64,8 +62,9 @@ class Entity:
 #map object
 class Scene:
 	def __init__(self, filename = None):
-		self.width = 640
-		self.height = 480
+		self.renderwidth = 10
+		self.width = 1920
+		self.height = 1080
 		self.camx = pi / 3
 		self.camy = self.camx * 480 / 640
 		with open(filename, 'r') as file:
@@ -86,11 +85,11 @@ class Scene:
 	def display(self):
 		canv.delete("all")
 		x_old = -1
-		for x_ in range(0, self.width):
+		for x_ in range(self.width // self.renderwidth):
 			debug = (x_ == self.width // 2)
 
 			player = self.player
-			to = v_norm(v_rot(player.look) * sin(self.camx * x_ / self.width - 0.5) + player.look * cos(self.camx * x_ / self.width - 0.5))
+			to = v_norm(v_rot(player.look) * sin(self.camx * x_ * self.renderwidth / self.width - 0.5) + player.look * cos(self.camx * x_ * self.renderwidth / self.width - 0.5))
 			ok_walls = []
 			x = player.position
 			deltaDistX = abs(1 / to.x)
@@ -146,7 +145,8 @@ class Scene:
 
 
 				
-				canv.create_line(x_, (self.height // 2 - lh), x_, (self.height // 2 + lh), fill=_from_rgb([int(255 * brightness), int(255 * brightness), int(255 * brightness)]))
+				#canv.create_rectangle(x_, (self.height // 2 - lh), x_, (self.height // 2 + lh), fill=_from_rgb([int(255 * brightness), int(255 * brightness), int(255 * brightness)]))
+				canv.create_rectangle(x_ * self.renderwidth - self.renderwidth / 2, self.height // 2 + lh, x_ * self.renderwidth + self.renderwidth / 2, self.height / 2 - lh, fill = _from_rgb([int(255 * brightness), int(255 * brightness), int(255 * brightness)]), outline = _from_rgb([int(255 * brightness), int(255 * brightness), int(255 * brightness)]))
 				#canv.create_line(x_, self.height, x_, 0, fill=_from_rgb([int(255 * brightness), int(255 * brightness), int(255 * brightness)]))
 		canv.update()
 
