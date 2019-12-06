@@ -2,7 +2,7 @@ from math import *
 import time
 from random import randrange as rnd,choice
 import tkinter as tk
-
+import os
 
 root = tk.Tk()
 fr = tk.Frame(root)
@@ -62,7 +62,7 @@ class Entity:
 #map object
 class Scene:
 	def __init__(self, filename = None):
-		self.renderwidth = 10
+		self.renderwidth = 5
 		self.width = 1920
 		self.height = 1080
 		self.camx = pi / 3
@@ -84,6 +84,9 @@ class Scene:
 
 	def display(self):
 		canv.delete("all")
+
+		canv.create_rectangle(0, self.height // 2, self.width, self.height, fill = 'red')
+
 		x_old = -1
 		for x_ in range(self.width // self.renderwidth):
 			debug = (x_ == self.width // 2)
@@ -142,6 +145,7 @@ class Scene:
 				else:
 					wallX = x.x + perpWallDist * to.x;
 				wallX = wallX - int(wallX)
+				#brightness = brightness * sqrt(cos(x_ * self.renderwidth / (self.width / 2) + pi / 2)
 
 
 				
@@ -227,8 +231,9 @@ def player_move():
 
 class minimap():
 	def __init__(self, scene, scenewidth = 0, sceneheight = 0):
+		self.war_mist = 0
 		self.scale = 2
-		self.a = 100
+		self.a = 500
 		self.player = scene.player
 		self.field = scene.field
 		self.n = len(self.field)
@@ -236,21 +241,25 @@ class minimap():
 		self.dx = self.a / self.n * self.scale
 		self.dy = self.a / self.k * self.scale
 		self.obzor = scene.camy
-		print(self.dx, self.dy)
 	def draw(self):
 		for i in range(self.n):
 			for j in range(self.k):
-				if self.field[i][j] == 1:
-					canv.create_rectangle(i * self.dx, j * self.dy, (i + 1) * self.dx, (j + 1) * self.dy, fill = 'red')
-					canv.update()
+				if self.war_mist:
+					if self.field[i][j] != -1 and self.field[i][j] != 0:
+						canv.create_rectangle(i * self.dx, j * self.dy, (i + 1) * self.dx, (j + 1) * self.dy, fill = 'red')
+				else:
+					if self.field[i][j] != -1:
+						canv.create_rectangle(i * self.dx, j * self.dy, (i + 1) * self.dx, (j + 1) * self.dy, fill = 'red')
+						
 
 		canv.create_line(self.player.position.x * self.a * self.scale / self.n, self.player.position.y * self.a * self.scale / self.k, self.player.position.x * self.a * self.scale / self.n + self.player.look.x * 10 * self.scale, self.player.position.y * self.a * self.scale / self.k + self.player.look.y * 10 * self.scale, width = 5, fill = 'blue')
-		
+		canv.update()
 
 
 
 #main body
 if __name__ == "__main__":
+	os.system('python3 ~/dox/Infa/python_project/map_generator/auto_generator.py')
 	s = Scene('scene.cfg')
 	a = atan2(s.player.look.x, s.player.look.y)
 	frame = 0

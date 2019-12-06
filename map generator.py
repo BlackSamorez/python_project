@@ -14,8 +14,8 @@ root.geometry('1000x1000')
 canv = tk.Canvas(root,bg='black')
 canv.pack(fill = tk.BOTH,expand = 1)
 
-
-
+player = input()
+name = input()
 n = int(input())
 k = int(input())
 dx = 1000 / n
@@ -50,8 +50,8 @@ def draw():
 	root.after(30, draw)
 
 def enter(event):
-	global field, n, k, dy, dx
-	with open('scene.cfg', 'r') as file:
+	global field, name, n, k, dy, dx
+	with open(name, 'r') as file:
 		s = file.read()
 	n, k = [int(x) for x in s.split('\n')[0].split(' ')]
 	field = [[-1] * k for x in range(n)]
@@ -64,17 +64,18 @@ def enter(event):
 	dy = 1000 / k
 
 def exit(event):
-	global field, n, k
+	global field, name, n, k
 	print('saved')
-	with open('scene.cfg', 'w') as file:
+	with open(name, 'w') as file:
 		file.write(str(n))
 		file.write(' ')
 		file.write(str(k))
-		file.write('\n')
-		file.write('player 1 1 ')
-		file.write(str(floor(n / 2)))
-		file.write(' ')
-		file.write(str(floor(k / 2)))
+		if player:
+			file.write('\n')
+			file.write('player 1 1 ')
+			file.write(str(floor(n / 2)))
+			file.write(' ')
+			file.write(str(floor(k / 2)))
 		for i in range(n):
 			for j in range(k):
 				if field[i][j] == 0:
