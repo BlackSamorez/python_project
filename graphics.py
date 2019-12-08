@@ -62,7 +62,7 @@ class Entity:
 #map object
 class Scene:
 	def __init__(self, filename = None):
-		self.renderwidth = 5
+		self.renderwidth = 10
 		self.width = 1920
 		self.height = 1080
 		self.camx = pi / 3
@@ -145,7 +145,7 @@ class Scene:
 				else:
 					wallX = x.x + perpWallDist * to.x;
 				wallX = wallX - int(wallX)
-				#brightness = brightness * sqrt(cos(x_ * self.renderwidth / (self.width / 2) + pi / 2)
+				brightness = brightness * sqrt(abs(cos(x_ * self.renderwidth / (self.width / 2) + pi / 2)))
 
 
 				
@@ -208,16 +208,16 @@ def move_undetect(event):
 def player_move():
 	global player, a
 	if s.player.forward == 1 and s.field[floor(s.player.position.x + s.player.look.x * 0.1)][floor(s.player.position.y + s.player.look.y * 0.1)] == -1:
-		s.player.position = s.player.position + s.player.look * 0.1
+		s.player.position = s.player.position + s.player.look * 0.2
 	
 	if s.player.forward == -1 and s.field[floor(s.player.position.x - s.player.look.x * 0.1)][floor(s.player.position.y - s.player.look.y * 0.1)] == -1:
-		s.player.position = s.player.position - s.player.look * 0.1
+		s.player.position = s.player.position - s.player.look * 0.2
 
 	if s.player.right == 1 and s.field[floor(s.player.position.x - v_rot(s.player.look).x * 0.1)][floor(s.player.position.y - v_rot(s.player.look).y * 0.1)] == -1:
-		s.player.position = s.player.position - v_rot(s.player.look) * 0.1
+		s.player.position = s.player.position - v_rot(s.player.look) * 0.2
 	
 	if s.player.right == -1 and s.field[floor(s.player.position.x + v_rot(s.player.look).x * 0.1)][floor(s.player.position.y + v_rot(s.player.look).y * 0.1)] == -1:
-		s.player.position = s.player.position + v_rot(s.player.look) * 0.1
+		s.player.position = s.player.position + v_rot(s.player.look) * 0.2
 
 
 
@@ -259,7 +259,7 @@ class minimap():
 
 #main body
 if __name__ == "__main__":
-	os.system('python3 ~/dox/Infa/python_project/map_generator/auto_generator.py')
+	os.system('python3 ./map_generator/auto_generator.py')
 	s = Scene('scene.cfg')
 	a = atan2(s.player.look.x, s.player.look.y)
 	frame = 0

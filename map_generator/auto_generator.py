@@ -32,7 +32,7 @@ def exit():
 def import_rooms():
 	room = [[[-1] * 13 for x in range(11)] for y in range(11)]
 	for i in range(12):
-		with open(('room' + str(i + 1) + '.cfg'), 'r') as file:
+		with open(('./map_generator/room' + str(i + 1) + '.cfg'), 'r') as file:
 			s = file.read()
 		
 		for line in s.split('\n')[1:]:
