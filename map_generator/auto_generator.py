@@ -122,15 +122,18 @@ def create_floor():
 	p_n = 6 * boss_n + 5
 	p_k = 6 * boss_k + 5
 
-	level_cut()
+	room_counter = level_cut()
+	if room_counter < n * k * 0.3 or room_counter > n * k * 0.8:
+		create_floor()
 
 
 
 def level_cut():
-	global field, name, n, k ,player, dx, dy, percentage, subfield, boss_n, boss_k, p_n, p_k
+	global field, name, n, k ,player, dx, dy, percentage, subfield, boss_n, boss_k, p_n, p_k, cutting_edge
+	room_counter = 0
 	for i in range(n):
 		for j in range(k):
-			if rnd(0,100) > 60:
+			if rnd(0,100) < cutting_edge:
 				field[6 * i + 3][6 * j] = 0
 				field[6 * i][6 * j + 3] = 0
 	
@@ -143,14 +146,38 @@ def level_cut():
 	subfield[boss_n + 2][boss_k] = -1
 	subfield[boss_n + 2][boss_k + 1] = -1
 	subfield[boss_n + 2][boss_k + 1] = -1
+	far_end = [0, 0]
 
-	for m in range(2 * n):
+	for m in range(min([n, k])):
 		for i in range(n):
 			for j in range(k):
-				if i !=0 and j!= 0 and i != n-1 and j != k-1:
+				if i !=0 and j!= 0 and i != n - 1 and j != k - 1:
 					if (subfield[i+1][j] == -1 and field[6 * i + 6][6 * j + 3] == -1) or (subfield[i-1][j] == -1 and field[6 * i][6 * j + 3] == -1) or (subfield[i][j+1] == -1 and field[6 * i + 3][6 * j + 6] == -1) or (subfield[i][j-1] == -1 and field[6 * i + 3][6 * j] == -1):
+						if subfield[i][j] != -1:
+							room_counter += 1
 						subfield[i][j] = -1
 						far_end = [i, j]
+
+				if i == 0 and j!=0 and j != k - 1:
+					if (subfield[i+1][j] == -1 and field[6 * i + 6][6 * j + 3] == -1) or (subfield[i][j+1] == -1 and field[6 * i + 3][6 * j + 6] == -1) or (subfield[i][j-1] == -1 and field[6 * i + 3][6 * j] == -1):
+						if subfield[i][j] != -1:
+							room_counter += 1
+						subfield[i][j] = -1
+				if i != 0 and j == 0 and i != n - 1:
+					if (subfield[i+1][j] == -1 and field[6 * i + 6][6 * j + 3] == -1) or (subfield[i][j+1] == -1 and field[6 * i + 3][6 * j + 6] == -1) or (subfield[i][j-1] == -1 and field[6 * i + 3][6 * j] == -1):
+						if subfield[i][j] != -1:
+							room_counter += 1
+						subfield[i][j] = -1
+				if i != 0 and j == k - 1 and i != n - 1:
+					if (subfield[i+1][j] == -1 and field[6 * i + 6][6 * j + 3] == -1) or (subfield[i-1][j] == -1 and field[6 * i][6 * j + 3] == -1) or (subfield[i][j-1] == -1 and field[6 * i + 3][6 * j] == -1):
+						if subfield[i][j] != -1:
+							room_counter += 1
+						subfield[i][j] = -1
+				if i == n - 1  and j != k - 1 and j != 0:
+					if (subfield[i-1][j] == -1 and field[6 * i][6 * j + 3] == -1) or (subfield[i][j+1] == -1 and field[6 * i + 3][6 * j + 6] == -1) or (subfield[i][j-1] == -1 and field[6 * i + 3][6 * j] == -1):
+						if subfield[i][j] != -1:
+							room_counter += 1
+						subfield[i][j] = -1
 
 	field[6 * far_end[0] + 3][6 * far_end[1] + 3] = -1
 	p_n = 6 * far_end[0] + 3
@@ -159,8 +186,8 @@ def level_cut():
 	for i in range(n):
 			for j in range(k):
 				if subfield[i][j] != -1:
-					for l in range(6):
-						for m in range(6):
+					for l in range(7):
+						for m in range(7):
 							field[6 * i + l][6 * j + m] = 0
 
 	for i in range(1, 6 * n):
@@ -171,14 +198,16 @@ def level_cut():
 			for j in range(1, 6 * k):
 				if field[i][j] == -2:
 					field[i][j] = -1
+	return room_counter
 
 
 
 
 name = 'scene.cfg'
 percentage = 90
-n = 10
-k = 10
+n = 8
+k = 8
+cutting_edge = 80
 
 create_floor()
 exit()

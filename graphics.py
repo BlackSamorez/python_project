@@ -82,6 +82,7 @@ class Scene:
 				self.player = Player(v_norm(Vector2D(lx, ly)), Vector2D(x, y))
 		self.lines = 3
 		self.color = [[]*3 for x in range(self.lines)]
+		self.edges = [0, 0, 0]
 		
 		
 
@@ -90,7 +91,7 @@ class Scene:
 
 		canv.create_rectangle(0, self.height // 2, self.width, self.height, fill = 'black')
 
-		self.lines = 3
+		self.edges = [0,20,80, 100]
 		self.color[0] = [87, 31, 0]
 		self.color[1] = [255, 255, 255]
 		self.color[2] = [87, 31, 0]
@@ -156,8 +157,8 @@ class Scene:
 				brightness = brightness * sqrt(abs(cos(x_ * self.renderwidth / (self.width / 2) + pi / 2)))
 
 
-				for i in range(self.lines):
-					canv.create_rectangle(x_ * self.renderwidth - self.renderwidth / 2, self.height // 2 - lh + 2 * i * (lh / self.lines) , x_ * self.renderwidth + self.renderwidth / 2, self.height / 2 - lh + 2 * (i + 1) * (lh / self.lines) , fill = _from_rgb([int(self.color[i][0] * brightness), int(self.color[i][1] * brightness), int(self.color[i][2] * brightness)]))
+				for i in range(len(self.edges) - 1):
+					canv.create_rectangle(x_ * self.renderwidth - self.renderwidth / 2, self.height // 2 - lh + 2 * lh * (self.edges[i] / 100) , x_ * self.renderwidth + self.renderwidth / 2, self.height / 2 - lh + 2 * lh * (self.edges[i + 1] / 100) , fill = _from_rgb([int(self.color[i][0] * brightness), int(self.color[i][1] * brightness), int(self.color[i][2] * brightness)]))
 			
 		canv.update()
 
@@ -214,16 +215,16 @@ def move_undetect(event):
 #move itself
 def player_move():
 	global player, a
-	if s.player.forward == 1 and s.field[floor(s.player.position.x + s.player.look.x * 0.1)][floor(s.player.position.y + s.player.look.y * 0.1)] == -1:
+	if s.player.forward == 1 and s.field[floor(s.player.position.x + s.player.look.x * 0.3)][floor(s.player.position.y + s.player.look.y * 0.3)] == -1:
 		s.player.position = s.player.position + s.player.look * 0.2
 	
-	if s.player.forward == -1 and s.field[floor(s.player.position.x - s.player.look.x * 0.1)][floor(s.player.position.y - s.player.look.y * 0.1)] == -1:
+	if s.player.forward == -1 and s.field[floor(s.player.position.x - s.player.look.x * 0.3)][floor(s.player.position.y - s.player.look.y * 0.3)] == -1:
 		s.player.position = s.player.position - s.player.look * 0.2
 
-	if s.player.right == 1 and s.field[floor(s.player.position.x - v_rot(s.player.look).x * 0.1)][floor(s.player.position.y - v_rot(s.player.look).y * 0.1)] == -1:
+	if s.player.right == 1 and s.field[floor(s.player.position.x - v_rot(s.player.look).x * 0.3)][floor(s.player.position.y - v_rot(s.player.look).y * 0.3)] == -1:
 		s.player.position = s.player.position - v_rot(s.player.look) * 0.2
 	
-	if s.player.right == -1 and s.field[floor(s.player.position.x + v_rot(s.player.look).x * 0.1)][floor(s.player.position.y + v_rot(s.player.look).y * 0.1)] == -1:
+	if s.player.right == -1 and s.field[floor(s.player.position.x + v_rot(s.player.look).x * 0.3)][floor(s.player.position.y + v_rot(s.player.look).y * 0.3)] == -1:
 		s.player.position = s.player.position + v_rot(s.player.look) * 0.2
 
 
@@ -260,10 +261,7 @@ class minimap():
 						
 
 		canv.create_line(self.player.position.x * self.a * self.scale / self.n, self.player.position.y * self.a * self.scale / self.k, self.player.position.x * self.a * self.scale / self.n + self.player.look.x * 10 * self.scale, self.player.position.y * self.a * self.scale / self.k + self.player.look.y * 10 * self.scale, width = 5, fill = 'blue')
-		canv.update()
-
-
-	 
+		canv.update() 
 
 
 #main body
@@ -283,7 +281,7 @@ if __name__ == "__main__":
 	while True:
 		frame += 1
 		if frame % 60 == 0:
-			print(60 / (time.time() - time1))
+			#print(60 / (time.time() - time1))
 			time1 = time.time()
 		
 		if show_minimap:
