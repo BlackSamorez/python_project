@@ -3,6 +3,7 @@ import time
 from random import randrange as rnd,choice
 import tkinter as tk
 import os
+import cv2
 
 root = tk.Tk()
 fr = tk.Frame(root)
@@ -62,7 +63,7 @@ class Entity:
 #map object
 class Scene:
 	def __init__(self, filename = None):
-		self.renderwidth = 10
+		self.renderwidth = 20
 		self.width = 1920
 		self.height = 1080
 		self.camx = pi / 3
@@ -79,13 +80,20 @@ class Scene:
 			if command == 'player':
 				lx, ly, x, y = [float(x) for x in args.split(' ')]
 				self.player = Player(v_norm(Vector2D(lx, ly)), Vector2D(x, y))
+		self.lines = 3
+		self.color = [[]*3 for x in range(self.lines)]
 		
 		
 
 	def display(self):
 		canv.delete("all")
 
-		canv.create_rectangle(0, self.height // 2, self.width, self.height, fill = 'red')
+		canv.create_rectangle(0, self.height // 2, self.width, self.height, fill = 'black')
+
+		self.lines = 3
+		self.color[0] = [87, 31, 0]
+		self.color[1] = [255, 255, 255]
+		self.color[2] = [87, 31, 0]
 
 		x_old = -1
 		for x_ in range(self.width // self.renderwidth):
@@ -136,7 +144,7 @@ class Scene:
 					perpWallDist = (mapY - x.y + (1 - stepY) / 2) / to.y;
 				lh = int(1 / (perpWallDist + 0.0001) / self.camy * self.height / 2)
 				if perpWallDist > 1:
-					brightness = abs(to.x if side == 0 else to.y) / perpWallDist
+					brightness = abs(to.x if side == 0 else to.y) / sqrt(perpWallDist)
 				else:
 					brightness = abs(to.x if side == 0 else to.y)
 
@@ -148,10 +156,9 @@ class Scene:
 				brightness = brightness * sqrt(abs(cos(x_ * self.renderwidth / (self.width / 2) + pi / 2)))
 
 
-				
-				#canv.create_rectangle(x_, (self.height // 2 - lh), x_, (self.height // 2 + lh), fill=_from_rgb([int(255 * brightness), int(255 * brightness), int(255 * brightness)]))
-				canv.create_rectangle(x_ * self.renderwidth - self.renderwidth / 2, self.height // 2 + lh, x_ * self.renderwidth + self.renderwidth / 2, self.height / 2 - lh, fill = _from_rgb([int(255 * brightness), int(255 * brightness), int(255 * brightness)]), outline = _from_rgb([int(255 * brightness), int(255 * brightness), int(255 * brightness)]))
-				#canv.create_line(x_, self.height, x_, 0, fill=_from_rgb([int(255 * brightness), int(255 * brightness), int(255 * brightness)]))
+				for i in range(self.lines):
+					canv.create_rectangle(x_ * self.renderwidth - self.renderwidth / 2, self.height // 2 - lh + 2 * i * (lh / self.lines) , x_ * self.renderwidth + self.renderwidth / 2, self.height / 2 - lh + 2 * (i + 1) * (lh / self.lines) , fill = _from_rgb([int(self.color[i][0] * brightness), int(self.color[i][1] * brightness), int(self.color[i][2] * brightness)]))
+			
 		canv.update()
 
 #start moving
@@ -255,6 +262,8 @@ class minimap():
 		canv.create_line(self.player.position.x * self.a * self.scale / self.n, self.player.position.y * self.a * self.scale / self.k, self.player.position.x * self.a * self.scale / self.n + self.player.look.x * 10 * self.scale, self.player.position.y * self.a * self.scale / self.k + self.player.look.y * 10 * self.scale, width = 5, fill = 'blue')
 		canv.update()
 
+
+	 
 
 
 #main body

@@ -8,16 +8,16 @@ import tkinter as tk
 
 
 def exit():
-	global field, name, n, k
+	global field, name, n, k, p_n, p_k
 	with open(name, 'w') as file:
 		file.write(str(6 * n + 1))
 		file.write(' ')
 		file.write(str(6 * k + 1))
 		file.write('\n')
 		file.write('player 1 1 ')
-		file.write('3')
+		file.write(str(p_n))
 		file.write(' ')
-		file.write('3')
+		file.write(str(p_k))
 		for i in range(6 * n + 1):
 			for j in range(6 * k + 1):
 				if field[i][j] == 0:
@@ -27,7 +27,6 @@ def exit():
 					file.write(' ')
 					file.write(str(j))
 					file.write(' 0')
-
 
 def import_rooms():
 	room = [[[-1] * 13 for x in range(11)] for y in range(11)]
@@ -46,7 +45,8 @@ def import_rooms():
 
 
 def create_floor():
-	global field, name, n, k ,percentage
+	global field, name, n, k ,player, dx, dy, percentage, boss_n, boss_k, subfield, p_n, p_k
+	
 
 	room = import_rooms()
 
@@ -116,9 +116,60 @@ def create_floor():
 		for j in range(17):
 			field[6 * boss_n + i + 1][6 * boss_k + j + 1] = -1
 
-	for i in range(5):
-		for j in range(5):
-			field[i + 1][j + 1] = -1
+	dx = 1000 / (6 * n + 1)
+	dy = 1000 / (6 * k + 1)
+
+	p_n = 6 * boss_n + 5
+	p_k = 6 * boss_k + 5
+
+	level_cut()
+
+
+
+def level_cut():
+	global field, name, n, k ,player, dx, dy, percentage, subfield, boss_n, boss_k
+	for i in range(n):
+		for j in range(k):
+			if rnd(0,100) > 60:
+				field[6 * i + 3][6 * j] = 0
+				field[6 * i][6 * j + 3] = 0
+	
+	subfield[boss_n][boss_k] = -1
+	subfield[boss_n][boss_k + 1] = -1
+	subfield[boss_n][boss_k + 2] = -1
+	subfield[boss_n + 1][boss_k] = -1
+	subfield[boss_n + 1][boss_k + 1] = -1
+	subfield[boss_n + 1][boss_k + 2] = -1
+	subfield[boss_n + 2][boss_k] = -1
+	subfield[boss_n + 2][boss_k + 1] = -1
+	subfield[boss_n + 2][boss_k + 1] = -1
+
+	for m in range(2 * n):
+		for i in range(n):
+			for j in range(k):
+				if i !=0 and j!= 0 and i != n-1 and j != k-1:
+					if (subfield[i+1][j] == -1 and field[6 * i + 6][6 * j + 3] == -1) or (subfield[i-1][j] == -1 and field[6 * i][6 * j + 3] == -1) or (subfield[i][j+1] == -1 and field[6 * i + 3][6 * j + 6] == -1) or (subfield[i][j-1] == -1 and field[6 * i + 3][6 * j] == -1):
+						subfield[i][j] = -1
+
+
+
+	for i in range(n):
+			for j in range(k):
+				if subfield[i][j] != -1:
+					for l in range(6):
+						for m in range(6):
+							field[6 * i + l][6 * j + m] = 0
+
+	for i in range(1, 6 * n):
+			for j in range(1, 6 * k):
+				if field[i][j + 1] in [0, -2] and field[i + 1][j] in [0, -2] and field[i][j - 1] in [0, -2] and field[i - 1][j] in [0, -2] and field[i - 1][j - 1] in [0, -2] and field[i - 1][j + 1] in [0, -2] and field[i + 1][j - 1] in [0, -2] and field[i + 1][j + 1] in [0, -2]:
+					field[i][j] = -2
+	for i in range(1, 6 * n):
+			for j in range(1, 6 * k):
+				if field[i][j] == -2:
+					field[i][j] = -1
+
+	
 
 name = 'scene.cfg'
 percentage = 80

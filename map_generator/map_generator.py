@@ -48,7 +48,7 @@ def enter(event):
 
 def exit(event):
 	global field, name, n, k, player
-	print('saved')
+	
 	with open(name, 'w') as file:
 		file.write(str(n))
 		file.write(' ')
@@ -69,7 +69,7 @@ def exit(event):
 					file.write(' ')
 					file.write(str(j))
 					file.write(' 0')
-
+	print('saved', name)
 
 def import_rooms():
 	room = [[[-1] * 13 for x in range(11)] for y in range(11)]
@@ -88,7 +88,7 @@ def import_rooms():
 
 
 def create_floor(event):
-	global field, name, n, k ,player, dx, dy, percentage
+	global field, name, n, k ,player, dx, dy, percentage, boss_n, boss_k, subfield
 	print('level creation has begun')
 
 	room = import_rooms()
@@ -162,12 +162,52 @@ def create_floor(event):
 	dx = 1000 / (6 * n + 1)
 	dy = 1000 / (6 * k + 1)
 
-	print('level creation has ended')
+	print('level creation has ended, cutting level')
+	level_cut()
+	print('level cutting has ended')
 
 
 
+def level_cut():
+	global field, name, n, k ,player, dx, dy, percentage, subfield, boss_n, boss_k
+	for i in range(n):
+		for j in range(k):
+			if rnd(0,100) > 60:
+				field[6 * i + 3][6 * j] = 0
+				field[6 * i][6 * j + 3] = 0
+	
+	subfield[boss_n][boss_k] = -1
+	subfield[boss_n][boss_k + 1] = -1
+	subfield[boss_n][boss_k + 2] = -1
+	subfield[boss_n + 1][boss_k] = -1
+	subfield[boss_n + 1][boss_k + 1] = -1
+	subfield[boss_n + 1][boss_k + 2] = -1
+	subfield[boss_n + 2][boss_k] = -1
+	subfield[boss_n + 2][boss_k + 1] = -1
+	subfield[boss_n + 2][boss_k + 1] = -1
 
+	for m in range(min([n, k])):
+		for i in range(n):
+			for j in range(k):
+				if i !=0 and j!= 0 and i != n-1 and j != k-1:
+					if (subfield[i+1][j] == -1 and field[6 * i + 6][6 * j + 3] == -1) or (subfield[i-1][j] == -1 and field[6 * i][6 * j + 3] == -1) or (subfield[i][j+1] == -1 and field[6 * i + 3][6 * j + 6] == -1) or (subfield[i][j-1] == -1 and field[6 * i + 3][6 * j] == -1):
+						subfield[i][j] = -1
+	for i in range(n):
+			for j in range(k):
+				if subfield[i][j] != -1:
+					for l in range(6):
+						for m in range(6):
+							field[6 * i + l][6 * j + m] = 0
 
+	for i in range(1, 6 * n):
+			for j in range(1, 6 * k):
+				if field[i][j + 1] in [0, -2] and field[i + 1][j] in [0, -2] and field[i][j - 1] in [0, -2] and field[i - 1][j] in [0, -2] and field[i - 1][j - 1] in [0, -2] and field[i - 1][j + 1] in [0, -2] and field[i + 1][j - 1] in [0, -2] and field[i + 1][j + 1] in [0, -2]:
+					field[i][j] = -2
+	for i in range(1, 6 * n):
+			for j in range(1, 6 * k):
+				if field[i][j] == -2:
+					field[i][j] = -1
+	
 
 
 
@@ -179,7 +219,7 @@ if __name__ == "__main__":
 	canv.pack(fill = tk.BOTH,expand = 1)
 
 	player = int(input())
-	name = input()
+	name = 'scene.cfg'
 	n = int(input())
 	k = int(input())
 	dx = 1000 / n
@@ -194,6 +234,7 @@ if __name__ == "__main__":
 	canv.bind('<Motion>',targeting)
 	canv.bind('<Button-1>', click)
 	canv.bind('<F2>', create_floor)
+	#canv.bind('<F3>', level_cut)
 
 	draw()
 
