@@ -192,6 +192,7 @@ def level_cut():
 				if i !=0 and j!= 0 and i != n-1 and j != k-1:
 					if (subfield[i+1][j] == -1 and field[6 * i + 6][6 * j + 3] == -1) or (subfield[i-1][j] == -1 and field[6 * i][6 * j + 3] == -1) or (subfield[i][j+1] == -1 and field[6 * i + 3][6 * j + 6] == -1) or (subfield[i][j-1] == -1 and field[6 * i + 3][6 * j] == -1):
 						subfield[i][j] = -1
+						far_end = subfield[i][j]
 	for i in range(n):
 			for j in range(k):
 				if subfield[i][j] != -1:
@@ -224,7 +225,7 @@ if __name__ == "__main__":
 	k = int(input())
 	dx = 1000 / n
 	dy = 1000 / k
-	percentage = 80
+	percentage = 90
 
 	field = [[-1] * n for x in range(k)]
 

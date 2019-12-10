@@ -127,7 +127,7 @@ def create_floor():
 
 
 def level_cut():
-	global field, name, n, k ,player, dx, dy, percentage, subfield, boss_n, boss_k
+	global field, name, n, k ,player, dx, dy, percentage, subfield, boss_n, boss_k, p_n, p_k
 	for i in range(n):
 		for j in range(k):
 			if rnd(0,100) > 60:
@@ -150,8 +150,11 @@ def level_cut():
 				if i !=0 and j!= 0 and i != n-1 and j != k-1:
 					if (subfield[i+1][j] == -1 and field[6 * i + 6][6 * j + 3] == -1) or (subfield[i-1][j] == -1 and field[6 * i][6 * j + 3] == -1) or (subfield[i][j+1] == -1 and field[6 * i + 3][6 * j + 6] == -1) or (subfield[i][j-1] == -1 and field[6 * i + 3][6 * j] == -1):
 						subfield[i][j] = -1
+						far_end = [i, j]
 
-
+	field[6 * far_end[0] + 3][6 * far_end[1] + 3] = -1
+	p_n = 6 * far_end[0] + 3
+	p_k = 6 * far_end[1] + 3
 
 	for i in range(n):
 			for j in range(k):
@@ -169,12 +172,13 @@ def level_cut():
 				if field[i][j] == -2:
 					field[i][j] = -1
 
-	
+
+
 
 name = 'scene.cfg'
-percentage = 80
-n = 12
-k = 12
+percentage = 90
+n = 10
+k = 10
 
 create_floor()
 exit()
