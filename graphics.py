@@ -73,12 +73,13 @@ class Player:
 		self.healt = 100
 		self.equip = []
 	
-	def fire(targets):
+	def fire(self, targets):
 		for tar in targets:
 			tar.death()
 
 
-	def apt(event):
+
+	def apt(self, event):
 		pass
 
 
@@ -93,6 +94,7 @@ class Entity:
 		self.lh = 1
 		self.a = 0
 		self.altitude = 0.5
+		self.__name__ = 'Entity'
 
 	def rotate(self):
 		if self.a < 36:
@@ -126,15 +128,22 @@ class Entity:
 			self.altitude = 0.4
 
 
-class target(Entity):
+class Target(Entity):
+	def __init__(self, position=Vector2D(0, 0), idef = -1):
+		super(Target, self).__init__(position, idef)
+		self.__name__ = 'Target'
+		self.breath = 10
+
 	def death(self):
-		for i in range(10):
+		if self.breath > 0:
+			self.breath -= 1
 			self.height = 0.9 * self.height
 			self.width = 0.9 * self.width
 			for c in range(3):
 				self.color[c] = self.color[c] * 0.9
-
-
+			root.after(50, self.death)
+		else:
+			self.id = -1
 
 
 # map object
@@ -161,13 +170,18 @@ class Scene:
 			if command == 'entity':
 				x, y, idef = [int(x) for x in args.split(' ')]
 				self.entities += [Entity(Vector2D(x, y), idef)]
+			if command == 'target':
+				x, y, idef = [int(x) for x in args.split(' ')]
+				self.entities += [Target(Vector2D(x, y), idef)]
 		self.lines = 3
 		self.color = [[] * 3 for x in range(self.lines)]
 		self.edges = [0, 0, 0]
 		self.bc = [255, 255, 255]
 		self.entity_trace = [[Entity()] for x in range(self.width // self.renderwidth)]
+		self.targets = []
 
 	def target_entities(self):
+		self.targets = []
 		self.entity_trace = [[Entity()] for x in range(self.width // self.renderwidth)]
 		for ent in self.entities:
 			phi = atan2((ent.position.y - self.player.position.y), (ent.position.x - self.player.position.x)) - atan2(
@@ -182,6 +196,10 @@ class Scene:
 				for i in range(2 * deltaphi):
 					if (x_ - deltaphi + i) > -1 and (x_ - deltaphi + i) < (self.width // self.renderwidth):
 						self.entity_trace[x_ - deltaphi + i] += [ent]
+			if (ent.__name__ == 'Target') and (phi < pi / 32) and (phi > - pi / 32):
+				self.targets += [ent]
+
+
 
 	def display_cubes(self):
 		canv.delete("all")
@@ -369,6 +387,11 @@ def player_move():
 		a += 5 / 180 * pi
 		s.player.look = Vector2D(cos(a), sin(a))
 
+def shoot(event):
+	global s
+	s.player.fire(s.targets)
+
+
 
 class minimap():
 	def __init__(self, scene, scenewidth=0, sceneheight=0):
@@ -420,9 +443,10 @@ if __name__ == "__main__":
 	s.entities[len(s.entities) - 1].id = 0
 	for ent in s.entities:
 		ent.difference()
-		ent.rotate()
+		#ent.rotate()
 	frame = 0
 	begin = time.time()
+	canv.bind("<space>", shoot)
 	canv.bind("<KeyPress>", move_detect)
 	canv.bind("<KeyRelease>", move_undetect)
 	mnmp = minimap(s)

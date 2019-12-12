@@ -31,7 +31,7 @@ def exit():
                     file.write(str(field[i][j]))
         for ent in entities:
             file.write('\n')
-            file.write('entity ')
+            file.write('target ')
             file.write(str(6 * ent.position[0] + 3))
             file.write(' ')
             file.write(str(6 * ent.position[1] + 3))
@@ -248,7 +248,7 @@ percentage = 90
 n = 8
 k = 8
 cutting_edge = 80
-loot_chance = 30
+loot_chance = 60
 ent_types = 4
 
 create_floor()
