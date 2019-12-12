@@ -78,6 +78,29 @@ class Entity:
 		self.id = -1
 		self.color = [0, 100, 100]
 		self.lh = 1
+		self.altitude = 0.5
+		self.widespread = 1
+
+	def oscillate(self):
+		pass
+
+	def difference(self):
+		if self.id == 2:
+			self.dist = 1
+			self.height = 1
+			self.width = 0.75
+			self.color = [0, 205, 75]
+			self.lh = 1
+			self.altitude = 0.4
+			self.widespread = 0.6
+		elif self.id == 3:
+			self.dist = 1
+			self.height = 1
+			self.width = 0.25
+			self.color = [225, 155, 75]
+			self.lh = 1
+			self.altitude = 0.6
+			self.widespread = 0.4
 
 
 # map object
@@ -201,9 +224,9 @@ class Scene:
 					if ent.id != -1:
 						if perpWallDist < ent.dist:
 							canv.create_rectangle(x_ * self.renderwidth - self.renderwidth // 2,
-												  self.height // 2 - ent.lh // 2,
+												  self.height * ent.altitude - ent.lh // 2,
 												  x_ * self.renderwidth + self.renderwidth // 2,
-												  self.height // 2 + ent.lh // 2, fill=_from_rgb(
+												  self.height * ent.altitude + ent.lh // 2, fill=_from_rgb(
 									[int(ent.color[0]), int(ent.color[1]), int(ent.color[2])]))
 							if hit in [0, 1]:
 								for i in range(len(self.edges) - 1):
@@ -380,6 +403,7 @@ class minimap():
 						 self.player.position.y * self.a * self.scale / self.k + self.player.look.y * 10 * self.scale,
 						 width=5, fill='blue')
 		canv.update()
+
 
 # main body
 

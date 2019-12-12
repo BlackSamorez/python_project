@@ -8,13 +8,13 @@ canv = tk.Canvas(root, bg='grey')
 canv.pack(fill=tk.BOTH, expand=1)
 
 def start():
-    os.system('python3 graphics.py')
+    os.system('graphics.py')
 
 
 def draw_tutorial():
     pass
 
-def read_scene(filename='scene.cfg'):
+def read_scene(filename='map_generator/scene.cfg'):
     with open(filename, 'r') as file:
         s = file.read()
     fw, fh = [int(x) for x in s.split('\n')[0].split(' ')]
