@@ -69,9 +69,19 @@ class Player:
 		self.forward = 0
 		self.right = 0
 		self.rot = 0
+		self.ammo = 100
+		self.healt = 100
+		self.equip = []
+	
+	def fire(targets):
+		for tar in targets:
+			tar.death()
 
 
-# not used yet
+	def apt(event):
+		pass
+
+
 class Entity:
 	def __init__(self, position=Vector2D(0, 0), idef = -1):
 		self.position = position
@@ -116,6 +126,15 @@ class Entity:
 			self.altitude = 0.4
 
 
+class target(Entity):
+	def death(self):
+		for i in range(10):
+			self.height = 0.9 * self.height
+			self.width = 0.9 * self.width
+			for c in range(3):
+				self.color[c] = self.color[c] * 0.9
+
+
 
 
 # map object
@@ -148,7 +167,7 @@ class Scene:
 		self.bc = [255, 255, 255]
 		self.entity_trace = [[Entity()] for x in range(self.width // self.renderwidth)]
 
-	def display_entities(self):
+	def target_entities(self):
 		self.entity_trace = [[Entity()] for x in range(self.width // self.renderwidth)]
 		for ent in self.entities:
 			phi = atan2((ent.position.y - self.player.position.y), (ent.position.x - self.player.position.x)) - atan2(
@@ -253,20 +272,20 @@ class Scene:
 															  self.height / 2 - lh + 2 * lh * (self.edges[i + 1] / 100),
 															  fill=_from_rgb([int(self.color[i][0] * brightness),
 																			  int(self.color[i][1] * brightness),
-																			  int(self.color[i][2] * brightness)]))
+																			  int(self.color[i][2] * brightness)]), outline="")
 								if hit == 2:
 									canv.create_rectangle(x_ * self.renderwidth - self.renderwidth / 2,
 														  self.height // 2 - lh / 2,
 														  x_ * self.renderwidth + self.renderwidth / 2,
 														  self.height / 2 + lh / 2, fill=_from_rgb(
 											[int(self.bc[0] * brightness), int(self.bc[1] * brightness),
-											 int(self.bc[2] * brightness)]))
+											 int(self.bc[2] * brightness)]), outline="")
 							else:
 								canv.create_rectangle(x_ * self.renderwidth - self.renderwidth // 2,
 													  self.height // 2 - ent.lh // 2,
 													  x_ * self.renderwidth + self.renderwidth // 2,
 													  self.height // 2 + ent.lh // 2, fill=_from_rgb(
-										[int(ent.color[0]), int(ent.color[1]), int(ent.color[2])]))
+										[int(ent.color[0]), int(ent.color[1]), int(ent.color[2])]), outline="")
 
 
 		canv.update()
@@ -415,14 +434,14 @@ if __name__ == "__main__":
 	while True:
 		frame += 1
 		if frame % 60 == 0:
-			print(60 / (time.time() - time1))
+			#print(60 / (time.time() - time1))
 			time1 = time.time()
 
 		if show_minimap:
 			mnmp.draw()
 			time.sleep(0.5)
 		else:
-			s.display_entities()
+			s.target_entities()
 			s.display_cubes()
 			player_move()
 
