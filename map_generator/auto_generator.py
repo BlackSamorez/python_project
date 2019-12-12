@@ -123,13 +123,15 @@ def create_floor():
 	p_k = 6 * boss_k + 5
 
 	room_counter = level_cut()
-	if room_counter < n * k * 0.3 or room_counter > n * k * 0.8:
+	if room_counter < n * k * 0.3 or room_counter > n * k * 0.6:
 		create_floor()
 
 
 
 def level_cut():
 	global field, name, n, k ,player, dx, dy, percentage, subfield, boss_n, boss_k, p_n, p_k, cutting_edge
+	reachable = []
+	marked = []
 	room_counter = 0
 	for i in range(n):
 		for j in range(k):
@@ -137,67 +139,95 @@ def level_cut():
 				field[6 * i + 3][6 * j] = 0
 				field[6 * i][6 * j + 3] = 0
 	
-	subfield[boss_n][boss_k] = -1
-	subfield[boss_n][boss_k + 1] = -1
-	subfield[boss_n][boss_k + 2] = -1
-	subfield[boss_n + 1][boss_k] = -1
-	subfield[boss_n + 1][boss_k + 1] = -1
-	subfield[boss_n + 1][boss_k + 2] = -1
-	subfield[boss_n + 2][boss_k] = -1
-	subfield[boss_n + 2][boss_k + 1] = -1
-	subfield[boss_n + 2][boss_k + 1] = -1
+	reachable += [[boss_n, boss_k]]
+	reachable += [[boss_n, boss_k + 1]]
+	reachable += [[boss_n, boss_k + 2]]
+	reachable += [[boss_n + 1, boss_k]]
+	reachable += [[boss_n + 1, boss_k + 1]]
+	reachable += [[boss_n + 1, boss_k + 2]]
+	reachable += [[boss_n + 2, boss_k]]
+	reachable += [[boss_n + 2, boss_k + 1]]
+	reachable += [[boss_n + 2, boss_k + 1]]
 	far_end = [0, 0]
 
-	for m in range(min([n, k])):
-		for i in range(n):
-			for j in range(k):
-				if i !=0 and j!= 0 and i != n - 1 and j != k - 1:
-					if (subfield[i+1][j] == -1 and field[6 * i + 6][6 * j + 3] == -1) or (subfield[i-1][j] == -1 and field[6 * i][6 * j + 3] == -1) or (subfield[i][j+1] == -1 and field[6 * i + 3][6 * j + 6] == -1) or (subfield[i][j-1] == -1 and field[6 * i + 3][6 * j] == -1):
-						if subfield[i][j] != -1:
-							room_counter += 1
-						subfield[i][j] = -1
-						far_end = [i, j]
+	
+	for room in reachable:
 
-				if i == 0 and j!=0 and j != k - 1:
-					if (subfield[i+1][j] == -1 and field[6 * i + 6][6 * j + 3] == -1) or (subfield[i][j+1] == -1 and field[6 * i + 3][6 * j + 6] == -1) or (subfield[i][j-1] == -1 and field[6 * i + 3][6 * j] == -1):
-						if subfield[i][j] != -1:
+				if not ((room[0] in [0, n - 1]) and (room[1] in [0, k - 1])):
+					if room[0] != 0:
+						if (field[6 * room[0]][6 * room[1] + 3] == -1 or field[6 * room[0]][6 * room[1] + 4] == -1) and ([room[0] - 1, room[1]] not in reachable):
+							reachable += [[room[0] - 1, room[1]]]
+							far_end = [room[0] - 1, room[1]]
 							room_counter += 1
-						subfield[i][j] = -1
-				if i != 0 and j == 0 and i != n - 1:
-					if (subfield[i+1][j] == -1 and field[6 * i + 6][6 * j + 3] == -1) or (subfield[i][j+1] == -1 and field[6 * i + 3][6 * j + 6] == -1) or (subfield[i][j-1] == -1 and field[6 * i + 3][6 * j] == -1):
-						if subfield[i][j] != -1:
+
+					if room[0] != n - 1:
+						if (field[6 * room[0] + 6][6 * room[1] + 3] == -1 or field[6 * room[0] + 6][6 * room[1] + 4] == -1) and ([room[0] + 1, room[1]] not in reachable):
+							reachable += [[room[0] + 1, room[1]]]
+							far_end = [room[0] + 1, room[1]]
 							room_counter += 1
-						subfield[i][j] = -1
-				if i != 0 and j == k - 1 and i != n - 1:
-					if (subfield[i+1][j] == -1 and field[6 * i + 6][6 * j + 3] == -1) or (subfield[i-1][j] == -1 and field[6 * i][6 * j + 3] == -1) or (subfield[i][j-1] == -1 and field[6 * i + 3][6 * j] == -1):
-						if subfield[i][j] != -1:
+							
+					if room[1] != k - 1:
+						if (field[6 * room[0] + 3][6 * room[1] + 6] == -1 or field[6 * room[0] + 4][6 * room[1] + 6] == -1) and ([room[0], room[1] + 1] not in reachable):
+							reachable += [[room[0], room[1] + 1]]
+							far_end = [room[0], room[1] + 1]
 							room_counter += 1
-						subfield[i][j] = -1
-				if i == n - 1  and j != k - 1 and j != 0:
-					if (subfield[i-1][j] == -1 and field[6 * i][6 * j + 3] == -1) or (subfield[i][j+1] == -1 and field[6 * i + 3][6 * j + 6] == -1) or (subfield[i][j-1] == -1 and field[6 * i + 3][6 * j] == -1):
-						if subfield[i][j] != -1:
+							
+					if room[1] != 0:
+						if (field[6 * room[0] + 3][6 * room[1]] == -1 or field[6 * room[0] + 4][6 * room[1]] == -1) and ([room[0], room[1] - 1] not in reachable):
+							reachable += [[room[0], room[1] - 1]]
+							far_end = [room[0], room[1] - 1]
 							room_counter += 1
-						subfield[i][j] = -1
+							
+
+
+				
 
 	field[6 * far_end[0] + 3][6 * far_end[1] + 3] = -1
 	p_n = 6 * far_end[0] + 3
 	p_k = 6 * far_end[1] + 3
 
 	for i in range(n):
-			for j in range(k):
-				if subfield[i][j] != -1:
+		for j in range(k):
+			if ([i, j] not in reachable):
+				for m in range(7):
 					for l in range(7):
-						for m in range(7):
-							field[6 * i + l][6 * j + m] = 0
+						field[6 * i + m][6 * j + l] = 0
+
+	for i in range(6 * k - 1):
+		if field[0][i] in [0, -2] and field[i + 2][0] in [0, -2] and field[1][i + 1] in [0, -2] and field[1][i] in [0, -2] and field[1][i + 2] in [0, -2]:
+			field[0][i + 1] = -2
+
+		if field[6 * k][i] in [0, -2] and field[6 * k][i + 2] in [0, -2] and field[6 * k - 1][i + 1] in [0, -2] and field[6 * k - 1][i] in [0, -2] and field[6 * k - 1][i + 2] in [0, -2]:
+			field[6 * k][i + 1] = -2
+
+	for i in range(6 * n - 1):
+		if field[i][0] in [0, -2] and field[i + 2][0] in [0, -2] and field[i + 1][1] in [0, -2] and field[i][1] in [0, -2] and field[i + 2][1] in [0, -2]:
+			field[i + 1][0] = -2
+
+		if field[i][6 * k] in [0, -2] and field[i + 2][6 * k] in [0, -2] and field[i + 1][6 * k - 1] in [0, -2] and field[i][6 * k - 1] in [0, -2] and field[i + 2][6 * k - 1] in [0, -2]:
+			field[i + 1][6 * k] = -2
 
 	for i in range(1, 6 * n):
 			for j in range(1, 6 * k):
 				if field[i][j + 1] in [0, -2] and field[i + 1][j] in [0, -2] and field[i][j - 1] in [0, -2] and field[i - 1][j] in [0, -2] and field[i - 1][j - 1] in [0, -2] and field[i - 1][j + 1] in [0, -2] and field[i + 1][j - 1] in [0, -2] and field[i + 1][j + 1] in [0, -2]:
 					field[i][j] = -2
+
+	
+
 	for i in range(1, 6 * n):
 			for j in range(1, 6 * k):
 				if field[i][j] == -2:
 					field[i][j] = -1
+
+	if [0, 0] not in reachable:
+		field[0][0] = -1
+	if [0, k] not in reachable:
+		field[0][6 * k] = -1
+	if [n, 0] not in reachable:
+		field[6 * k][0] = -1
+	if [n, k] not in reachable:
+		field[6 * n][6 * k] = -1
+
 	return room_counter
 
 
