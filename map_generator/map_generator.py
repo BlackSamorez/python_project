@@ -316,8 +316,8 @@ if __name__ == "__main__":
 
 	player = 0
 	name = 'scene.cfg'
-	n = 8
-	k = 8
+	n = 15
+	k = 15
 	dx = 1000 / n
 	dy = 1000 / k
 	percentage = 90
