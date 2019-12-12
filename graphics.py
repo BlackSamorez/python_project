@@ -70,37 +70,28 @@ class Player:
 
 # not used yet
 class Entity:
-	def __init__(self, position=Vector2D(0, 0)):
+	def __init__(self, position=Vector2D(0, 0), idef = -1):
 		self.position = position
 		self.dist = 1
 		self.height = 1
 		self.width = 0.5
-		self.id = -1
+		self.id = idef
 		self.color = [0, 100, 100]
 		self.lh = 1
-		self.altitude = 0.5
-		self.widespread = 1
 
 	def oscillate(self):
 		pass
 
 	def difference(self):
 		if self.id == 2:
-			self.dist = 1
-			self.height = 1
+			self.height = 0.3
 			self.width = 0.75
 			self.color = [0, 205, 75]
-			self.lh = 1
-			self.altitude = 0.4
 			self.widespread = 0.6
 		elif self.id == 3:
-			self.dist = 1
-			self.height = 1
+			self.height = 0.8
 			self.width = 0.25
 			self.color = [225, 155, 75]
-			self.lh = 1
-			self.altitude = 0.6
-			self.widespread = 0.4
 
 
 # map object
@@ -111,6 +102,7 @@ class Scene:
 		self.height = 1080
 		self.camx = pi / 3
 		self.camy = self.camx * 480 / 640
+		self.entities = []
 		with open(filename, 'r') as file:
 			s = file.read()
 		self.fw, self.fh = [int(x) for x in s.split('\n')[0].split(' ')]
@@ -123,11 +115,13 @@ class Scene:
 			if command == 'player':
 				lx, ly, x, y = [float(x) for x in args.split(' ')]
 				self.player = Player(v_norm(Vector2D(lx, ly)), Vector2D(x, y))
+			if command == 'entity':
+				x, y, idef = [int(x) for x in args.split(' ')]
+				self.entities += [Entity(Vector2D(x, y), idef)]
 		self.lines = 3
 		self.color = [[] * 3 for x in range(self.lines)]
 		self.edges = [0, 0, 0]
 		self.bc = [255, 255, 255]
-		self.entities = []
 		self.entity_trace = [Entity() for x in range(self.width // self.renderwidth)]
 
 	def display_entities(self):
@@ -224,9 +218,9 @@ class Scene:
 					if ent.id != -1:
 						if perpWallDist < ent.dist:
 							canv.create_rectangle(x_ * self.renderwidth - self.renderwidth // 2,
-												  self.height * ent.altitude - ent.lh // 2,
+												  self.height // 2 - ent.lh // 2,
 												  x_ * self.renderwidth + self.renderwidth // 2,
-												  self.height * ent.altitude + ent.lh // 2, fill=_from_rgb(
+												  self.height // 2 + ent.lh // 2, fill=_from_rgb(
 									[int(ent.color[0]), int(ent.color[1]), int(ent.color[2])]))
 							if hit in [0, 1]:
 								for i in range(len(self.edges) - 1):
@@ -409,11 +403,14 @@ class minimap():
 
 
 if __name__ == "__main__":
-	os.system('auto_generator.py')
+	os.system('python3 auto_generator.py')
 	s = Scene('scene.cfg')
 	a = atan2(s.player.look.x, s.player.look.y)
 	s.entities += [Entity(s.player.position + Vector2D(1, 1))]
-	s.entities[0].id = 0
+	s.entities[len(s.entities) - 1].id = 0
+	for ent in s.entities:
+		ent.difference()
+		print(ent.id)
 	frame = 0
 	begin = time.time()
 	canv.bind("<KeyPress>", move_detect)

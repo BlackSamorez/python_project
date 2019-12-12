@@ -32,9 +32,9 @@ def exit():
         for ent in entities:
             file.write('\n')
             file.write('entity ')
-            file.write(str(ent.position[0]))
+            file.write(str(6 * ent.position[0] + 3))
             file.write(' ')
-            file.write(str(ent.position[1]))
+            file.write(str(6 * ent.position[1] + 3))
             file.write(' ')
             file.write(str(ent.id))
 
@@ -238,7 +238,7 @@ def level_cut():
         if loot_chance > rnd(1,100):
             rndid = rnd(1,4)
             entities += [entity(room, rndid)]
-            field[room[0] + 3][room[1] + 3] = -1
+            field[6 * room[0] + 3][6 * room[1] + 3] = -1
 
     return room_counter
 
@@ -248,7 +248,7 @@ percentage = 90
 n = 8
 k = 8
 cutting_edge = 80
-loot_chance = 20
+loot_chance = 80
 ent_types = 4
 
 create_floor()
