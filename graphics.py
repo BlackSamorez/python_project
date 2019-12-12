@@ -10,6 +10,9 @@ canv = tk.Canvas(root, bg='grey')
 canv.pack(fill=tk.BOTH, expand=1)
 
 
+def return_dist(ent):
+	return ent.dist
+
 def _from_rgb(rgb):  # HEX from rgb
 	return "#{:02x}{:02x}{:02x}".format(rgb[0], rgb[1], rgb[2])
 
@@ -72,7 +75,7 @@ class Player:
 class Entity:
 	def __init__(self, position=Vector2D(0, 0), idef = -1):
 		self.position = position
-		self.dist = 1
+		self.dist = 0.5
 		self.height = 1
 		self.width = 0.5
 		self.id = idef
@@ -122,10 +125,10 @@ class Scene:
 		self.color = [[] * 3 for x in range(self.lines)]
 		self.edges = [0, 0, 0]
 		self.bc = [255, 255, 255]
-		self.entity_trace = [Entity() for x in range(self.width // self.renderwidth)]
+		self.entity_trace = [[Entity()] for x in range(self.width // self.renderwidth)]
 
 	def display_entities(self):
-		self.entity_trace = [Entity() for x in range(self.width // self.renderwidth)]
+		self.entity_trace = [[Entity()] for x in range(self.width // self.renderwidth)]
 		for ent in self.entities:
 			phi = atan2((ent.position.y - self.player.position.y), (ent.position.x - self.player.position.x)) - atan2(
 				self.player.look.y, self.player.look.x)
@@ -138,7 +141,7 @@ class Scene:
 				deltaphi = int((atan2(ent.width, ent.dist) / self.camx) * self.width / self.renderwidth) // 2
 				for i in range(2 * deltaphi):
 					if (x_ - deltaphi + i) > -1 and (x_ - deltaphi + i) < (self.width // self.renderwidth):
-						self.entity_trace[x_ - deltaphi + i] = ent
+						self.entity_trace[x_ - deltaphi + i] += [ent]
 
 	def display_cubes(self):
 		canv.delete("all")
@@ -213,70 +216,37 @@ class Scene:
 				wallX = wallX - int(wallX)
 				brightness = brightness * sqrt(abs(cos(x_ * self.renderwidth / (self.width / 2) + pi / 2)))
 
-				ent = self.entity_trace[x_]
-				if True:
+				self.entity_trace[x_] += [Entity(Vector2D(0,0), 238)]
+				self.entity_trace[x_][-1].dist = perpWallDist
+				self.entity_trace[x_] = sorted(self.entity_trace[x_], key = return_dist, reverse = True)
+				
+				for ent in self.entity_trace[x_]:
 					if ent.id != -1:
-						if perpWallDist < ent.dist:
-							canv.create_rectangle(x_ * self.renderwidth - self.renderwidth // 2,
-												  self.height // 2 - ent.lh // 2,
-												  x_ * self.renderwidth + self.renderwidth // 2,
-												  self.height // 2 + ent.lh // 2, fill=_from_rgb(
-									[int(ent.color[0]), int(ent.color[1]), int(ent.color[2])]))
-							if hit in [0, 1]:
-								for i in range(len(self.edges) - 1):
+						if ent.dist < 30:
+							if ent.id == 238:
+								if hit in [0, 1]:
+									for i in range(len(self.edges) - 1):
+										canv.create_rectangle(x_ * self.renderwidth - self.renderwidth / 2,
+															  self.height // 2 - lh + 2 * lh * (self.edges[i] / 100),
+															  x_ * self.renderwidth + self.renderwidth / 2,
+															  self.height / 2 - lh + 2 * lh * (self.edges[i + 1] / 100),
+															  fill=_from_rgb([int(self.color[i][0] * brightness),
+																			  int(self.color[i][1] * brightness),
+																			  int(self.color[i][2] * brightness)]))
+								if hit == 2:
 									canv.create_rectangle(x_ * self.renderwidth - self.renderwidth / 2,
-														  self.height // 2 - lh + 2 * lh * (self.edges[i] / 100),
+														  self.height // 2 - lh / 2,
 														  x_ * self.renderwidth + self.renderwidth / 2,
-														  self.height / 2 - lh + 2 * lh * (self.edges[i + 1] / 100),
-														  fill=_from_rgb([int(self.color[i][0] * brightness),
-																		  int(self.color[i][1] * brightness),
-																		  int(self.color[i][2] * brightness)]))
-							if hit == 2:
-								canv.create_rectangle(x_ * self.renderwidth - self.renderwidth / 2,
-													  self.height // 2 - lh / 2,
-													  x_ * self.renderwidth + self.renderwidth / 2,
-													  self.height / 2 + lh / 2, fill=_from_rgb(
-										[int(self.bc[0] * brightness), int(self.bc[1] * brightness),
-										 int(self.bc[2] * brightness)]))
-						else:
-							if hit in [0, 1]:
-								for i in range(len(self.edges) - 1):
-									canv.create_rectangle(x_ * self.renderwidth - self.renderwidth / 2,
-														  self.height // 2 - lh + 2 * lh * (self.edges[i] / 100),
-														  x_ * self.renderwidth + self.renderwidth / 2,
-														  self.height / 2 - lh + 2 * lh * (self.edges[i + 1] / 100),
-														  fill=_from_rgb([int(self.color[i][0] * brightness),
-																		  int(self.color[i][1] * brightness),
-																		  int(self.color[i][2] * brightness)]))
-							if hit == 2:
-								canv.create_rectangle(x_ * self.renderwidth - self.renderwidth / 2,
-													  self.height // 2 - lh / 2,
-													  x_ * self.renderwidth + self.renderwidth / 2,
-													  self.height / 2 + lh / 2, fill=_from_rgb(
-										[int(self.bc[0] * brightness), int(self.bc[1] * brightness),
-										 int(self.bc[2] * brightness)]))
-							canv.create_rectangle(x_ * self.renderwidth - self.renderwidth // 2,
-												  self.height // 2 - ent.lh // 2,
-												  x_ * self.renderwidth + self.renderwidth // 2,
-												  self.height // 2 + ent.lh // 2, fill=_from_rgb(
-									[int(ent.color[0]), int(ent.color[1]), int(ent.color[2])]))
-					else:
-						if hit in [0, 1]:
-							for i in range(len(self.edges) - 1):
-								canv.create_rectangle(x_ * self.renderwidth - self.renderwidth / 2,
-													  self.height // 2 - lh + 2 * lh * (self.edges[i] / 100),
-													  x_ * self.renderwidth + self.renderwidth / 2,
-													  self.height / 2 - lh + 2 * lh * (self.edges[i + 1] / 100),
-													  fill=_from_rgb([int(self.color[i][0] * brightness),
-																	  int(self.color[i][1] * brightness),
-																	  int(self.color[i][2] * brightness)]))
-						if hit == 2:
-							canv.create_rectangle(x_ * self.renderwidth - self.renderwidth / 2,
-												  self.height // 2 - lh / 2,
-												  x_ * self.renderwidth + self.renderwidth / 2,
-												  self.height / 2 + lh / 2, fill=_from_rgb(
-									[int(self.bc[0] * brightness), int(self.bc[1] * brightness),
-									 int(self.bc[2] * brightness)]))
+														  self.height / 2 + lh / 2, fill=_from_rgb(
+											[int(self.bc[0] * brightness), int(self.bc[1] * brightness),
+											 int(self.bc[2] * brightness)]))
+							else:
+								canv.create_rectangle(x_ * self.renderwidth - self.renderwidth // 2,
+													  self.height // 2 - ent.lh // 2,
+													  x_ * self.renderwidth + self.renderwidth // 2,
+													  self.height // 2 + ent.lh // 2, fill=_from_rgb(
+										[int(ent.color[0]), int(ent.color[1]), int(ent.color[2])]))
+
 
 		canv.update()
 
@@ -410,7 +380,6 @@ if __name__ == "__main__":
 	s.entities[len(s.entities) - 1].id = 0
 	for ent in s.entities:
 		ent.difference()
-		print(ent.id)
 	frame = 0
 	begin = time.time()
 	canv.bind("<KeyPress>", move_detect)
@@ -423,7 +392,7 @@ if __name__ == "__main__":
 	while True:
 		frame += 1
 		if frame % 60 == 0:
-			# print(60 / (time.time() - time1))
+			print(60 / (time.time() - time1))
 			time1 = time.time()
 
 		if show_minimap:
