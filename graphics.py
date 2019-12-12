@@ -83,7 +83,7 @@ class Scene:
 		self.lines = 3
 		self.color = [[]*3 for x in range(self.lines)]
 		self.edges = [0, 0, 0]
-		
+		self.bc = [255, 255, 255]
 		
 
 	def display(self):
@@ -95,6 +95,7 @@ class Scene:
 		self.color[0] = [87, 31, 0]
 		self.color[1] = [255, 255, 255]
 		self.color[2] = [87, 31, 0]
+		self.bc = [255, 0, 0]
 
 		x_old = -1
 		for x_ in range(self.width // self.renderwidth):
@@ -156,9 +157,11 @@ class Scene:
 				wallX = wallX - int(wallX)
 				brightness = brightness * sqrt(abs(cos(x_ * self.renderwidth / (self.width / 2) + pi / 2)))
 
-
-				for i in range(len(self.edges) - 1):
-					canv.create_rectangle(x_ * self.renderwidth - self.renderwidth / 2, self.height // 2 - lh + 2 * lh * (self.edges[i] / 100) , x_ * self.renderwidth + self.renderwidth / 2, self.height / 2 - lh + 2 * lh * (self.edges[i + 1] / 100) , fill = _from_rgb([int(self.color[i][0] * brightness), int(self.color[i][1] * brightness), int(self.color[i][2] * brightness)]))
+				if hit in [0, 1]:
+					for i in range(len(self.edges) - 1):
+						canv.create_rectangle(x_ * self.renderwidth - self.renderwidth / 2, self.height // 2 - lh + 2 * lh * (self.edges[i] / 100) , x_ * self.renderwidth + self.renderwidth / 2, self.height / 2 - lh + 2 * lh * (self.edges[i + 1] / 100) , fill = _from_rgb([int(self.color[i][0] * brightness), int(self.color[i][1] * brightness), int(self.color[i][2] * brightness)]))
+				if hit == 2:
+						canv.create_rectangle(x_ * self.renderwidth - self.renderwidth / 2, self.height // 2 - lh / 2, x_ * self.renderwidth + self.renderwidth / 2, self.height / 2 + lh / 2, fill = _from_rgb([int(self.bc[0] * brightness), int(self.bc[1] * brightness), int(self.bc[2] * brightness)]))
 			
 		canv.update()
 
@@ -253,11 +256,16 @@ class minimap():
 		for i in range(self.n):
 			for j in range(self.k):
 				if self.war_mist:
-					if self.field[i][j] != -1 and self.field[i][j] != 0:
+					if self.field[i][j] not in [-1, 0]:
 						canv.create_rectangle(i * self.dx, j * self.dy, (i + 1) * self.dx, (j + 1) * self.dy, fill = 'red')
+					if self.field[i][j] == 2:
+						canv.create_rectangle(i * self.dx, j * self.dy, (i + 1) * self.dx, (j + 1) * self.dy, fill = 'blue')
 				else:
 					if self.field[i][j] != -1:
 						canv.create_rectangle(i * self.dx, j * self.dy, (i + 1) * self.dx, (j + 1) * self.dy, fill = 'red')
+					if self.field[i][j] == 2:
+						canv.create_rectangle(i * self.dx, j * self.dy, (i + 1) * self.dx, (j + 1) * self.dy, fill = 'blue')
+					
 						
 
 		canv.create_line(self.player.position.x * self.a * self.scale / self.n, self.player.position.y * self.a * self.scale / self.k, self.player.position.x * self.a * self.scale / self.n + self.player.look.x * 10 * self.scale, self.player.position.y * self.a * self.scale / self.k + self.player.look.y * 10 * self.scale, width = 5, fill = 'blue')
@@ -277,6 +285,7 @@ if __name__ == "__main__":
 	show_minimap = 0
 	mnmp.draw()
 	time1 = 0
+
 
 	while True:
 		frame += 1

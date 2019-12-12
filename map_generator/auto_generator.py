@@ -20,13 +20,14 @@ def exit():
 		file.write(str(p_k))
 		for i in range(6 * n + 1):
 			for j in range(6 * k + 1):
-				if field[i][j] == 0:
+				if field[i][j] != -1:
 					file.write('\n')
 					file.write('brick ')
 					file.write(str(i))
 					file.write(' ')
 					file.write(str(j))
-					file.write(' 0')
+					file.write(' ')
+					file.write(str(field[i][j]))
 
 def import_rooms():
 	room = [[[-1] * 13 for x in range(11)] for y in range(11)]
@@ -116,13 +117,10 @@ def create_floor():
 		for j in range(17):
 			field[6 * boss_n + i + 1][6 * boss_k + j + 1] = -1
 
-	dx = 1000 / (6 * n + 1)
-	dy = 1000 / (6 * k + 1)
-
-	p_n = 6 * boss_n + 5
-	p_k = 6 * boss_k + 5
-
 	room_counter = level_cut()
+
+	field[6 * boss_n + 9][6 * boss_k + 9] = 2
+
 	if room_counter < n * k * 0.3 or room_counter > n * k * 0.6:
 		create_floor()
 
@@ -196,17 +194,20 @@ def level_cut():
 	for i in range(6 * k - 1):
 		if field[0][i] in [0, -2] and field[i + 2][0] in [0, -2] and field[1][i + 1] in [0, -2] and field[1][i] in [0, -2] and field[1][i + 2] in [0, -2]:
 			field[0][i + 1] = -2
+			print(1)
 
 		if field[6 * k][i] in [0, -2] and field[6 * k][i + 2] in [0, -2] and field[6 * k - 1][i + 1] in [0, -2] and field[6 * k - 1][i] in [0, -2] and field[6 * k - 1][i + 2] in [0, -2]:
 			field[6 * k][i + 1] = -2
+			print(2)
 
 	for i in range(6 * n - 1):
 		if field[i][0] in [0, -2] and field[i + 2][0] in [0, -2] and field[i + 1][1] in [0, -2] and field[i][1] in [0, -2] and field[i + 2][1] in [0, -2]:
 			field[i + 1][0] = -2
+			print(3)
 
 		if field[i][6 * k] in [0, -2] and field[i + 2][6 * k] in [0, -2] and field[i + 1][6 * k - 1] in [0, -2] and field[i][6 * k - 1] in [0, -2] and field[i + 2][6 * k - 1] in [0, -2]:
 			field[i + 1][6 * k] = -2
-
+			print(4)
 	for i in range(1, 6 * n):
 			for j in range(1, 6 * k):
 				if field[i][j + 1] in [0, -2] and field[i + 1][j] in [0, -2] and field[i][j - 1] in [0, -2] and field[i - 1][j] in [0, -2] and field[i - 1][j - 1] in [0, -2] and field[i - 1][j + 1] in [0, -2] and field[i + 1][j - 1] in [0, -2] and field[i + 1][j + 1] in [0, -2]:
@@ -214,18 +215,18 @@ def level_cut():
 
 	
 
-	for i in range(1, 6 * n):
-			for j in range(1, 6 * k):
+	for i in range(6 * n + 1):
+			for j in range(6 * k + 1):
 				if field[i][j] == -2:
 					field[i][j] = -1
 
 	if [0, 0] not in reachable:
 		field[0][0] = -1
-	if [0, k] not in reachable:
+	if [0, k - 1] not in reachable:
 		field[0][6 * k] = -1
-	if [n, 0] not in reachable:
-		field[6 * k][0] = -1
-	if [n, k] not in reachable:
+	if [n - 1, 0] not in reachable:
+		field[6 * n][0] = -1
+	if [n - 1, k - 1] not in reachable:
 		field[6 * n][6 * k] = -1
 
 	return room_counter
@@ -238,6 +239,7 @@ percentage = 90
 n = 8
 k = 8
 cutting_edge = 80
+
 
 create_floor()
 exit()

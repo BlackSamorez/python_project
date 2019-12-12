@@ -28,6 +28,9 @@ def draw():
 		for j in range(len(field[0])):
 			if field[i][j] == 0:
 				canv.create_rectangle(dx * i, dy * j, dx * (i + 1), dy * (j + 1), fill = 'red')
+			if field[i][j] == 2:
+				canv.create_rectangle(dx * i, dy * j, dx * (i + 1), dy * (j + 1), fill = 'blue')
+
 
 	canv.update()
 	root.after(30, draw)
@@ -162,9 +165,11 @@ def create_floor(event = ''):
 	dx = 1000 / (6 * n + 1)
 	dy = 1000 / (6 * k + 1)
 
+	field[6 * boss_n + 9][6 * boss_k + 9] = 2
+
 	print('level creation has ended, cutting level')
 	room_counter = level_cut()
-	print(room_counter, ' ', m * k  / 3)
+	
 	if room_counter < n * k * 0.3 or room_counter > n * k * 0.6:
 		create_floor()
 
@@ -258,18 +263,18 @@ def level_cut():
 
 	
 
-	for i in range(1, 6 * n):
-			for j in range(1, 6 * k):
+	for i in range(6 * n + 1):
+			for j in range(6 * k + 1):
 				if field[i][j] == -2:
 					field[i][j] = -1
 
 	if [0, 0] not in reachable:
 		field[0][0] = -1
-	if [0, k] not in reachable:
+	if [0, k - 1] not in reachable:
 		field[0][6 * k] = -1
-	if [n, 0] not in reachable:
-		field[6 * k][0] = -1
-	if [n, k] not in reachable:
+	if [n - 1, 0] not in reachable:
+		field[6 * n][0] = -1
+	if [n - 1, k - 1] not in reachable:
 		field[6 * n][6 * k] = -1
 
 	return room_counter
