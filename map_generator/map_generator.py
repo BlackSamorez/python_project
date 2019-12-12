@@ -4,7 +4,10 @@ from random import randrange as rnd,choice
 import tkinter as tk
 
 
-
+class entity():
+	def __init__(self, position = [0, 0], idef = -1):
+		self.position = position
+		self.id = idef
 
 def targeting(event):
 	global mx, my
@@ -50,7 +53,7 @@ def enter(event):
 	dy = 1000 / k
 
 def exit(event):
-	global field, name, n, k, player
+	global field, name, n, k, player, entities
 	
 	with open(name, 'w') as file:
 		file.write(str(n))
@@ -72,6 +75,16 @@ def exit(event):
 					file.write(' ')
 					file.write(str(j))
 					file.write(' 0')
+		for ent in entities:
+			file.write('\n')
+			file.write('entity ')
+			file.write(str(ent.position[0]))
+			file.write(' ')
+			file.write(str(ent.position[1]))
+			file.write(' ')
+			file.write(str(ent.id))
+
+
 	print('saved', name)
 
 def import_rooms():
@@ -178,7 +191,7 @@ def create_floor(event = ''):
 
 
 def level_cut():
-	global field, name, n, k ,player, dx, dy, percentage, subfield, boss_n, boss_k, p_n, p_k, cutting_edge
+	global field, name, n, k ,player, dx, dy, percentage, subfield, boss_n, boss_k, p_n, p_k, cutting_edge, ent_chance, ent_types, entities
 	reachable = []
 	marked = []
 	room_counter = 0
@@ -277,6 +290,17 @@ def level_cut():
 	if [n - 1, k - 1] not in reachable:
 		field[6 * n][6 * k] = -1
 
+
+	for room in reachable:
+		if loot_chance > rnd(1,100):
+			rndid = rnd(1,4)
+			entities += [entity(room, rndid)]
+			field[room[0] + 3][room[1] + 3] = -1
+
+
+
+
+
 	return room_counter
 
 	
@@ -298,8 +322,10 @@ if __name__ == "__main__":
 	dy = 1000 / k
 	percentage = 90
 	cutting_edge = 80
+	loot_chance = 20
 
 	field = [[-1] * n for x in range(k)]
+	entities = []
 
 
 	canv.bind('<Return>', exit)

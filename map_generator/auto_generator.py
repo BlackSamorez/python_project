@@ -3,6 +3,10 @@ import time
 from random import randrange as rnd, choice
 import tkinter as tk
 
+class entity():
+    def __init__(self, position = [0, 0], idef = -1):
+        self.position = position
+        self.id = idef
 
 def exit():
     global field, name, n, k, p_n, p_k
@@ -25,6 +29,14 @@ def exit():
                     file.write(str(j))
                     file.write(' ')
                     file.write(str(field[i][j]))
+        for ent in entities:
+            file.write('\n')
+            file.write('entity ')
+            file.write(str(ent.position[0]))
+            file.write(' ')
+            file.write(str(ent.position[1]))
+            file.write(' ')
+            file.write(str(ent.id))
 
 
 def import_rooms():
@@ -118,7 +130,7 @@ def create_floor():
 
 
 def level_cut():
-    global field, name, n, k, player, dx, dy, percentage, subfield, boss_n, boss_k, p_n, p_k, cutting_edge
+    global field, name, n, k, player, dx, dy, percentage, subfield, boss_n, boss_k, p_n, p_k, cutting_edge, ent_chance, ent_types, entities
     reachable = []
     marked = []
     room_counter = 0
@@ -186,24 +198,21 @@ def level_cut():
                                                                                                                     -2] and \
                 field[1][i + 2] in [0, -2]:
             field[0][i + 1] = -2
-            print(1)
 
         if field[6 * k][i] in [0, -2] and field[6 * k][i + 2] in [0, -2] and field[6 * k - 1][i + 1] in [0, -2] and \
                 field[6 * k - 1][i] in [0, -2] and field[6 * k - 1][i + 2] in [0, -2]:
             field[6 * k][i + 1] = -2
-            print(2)
 
     for i in range(6 * n - 1):
         if field[i][0] in [0, -2] and field[i + 2][0] in [0, -2] and field[i + 1][1] in [0, -2] and field[i][1] in [0,
                                                                                                                     -2] and \
                 field[i + 2][1] in [0, -2]:
             field[i + 1][0] = -2
-            print(3)
 
         if field[i][6 * k] in [0, -2] and field[i + 2][6 * k] in [0, -2] and field[i + 1][6 * k - 1] in [0, -2] and \
                 field[i][6 * k - 1] in [0, -2] and field[i + 2][6 * k - 1] in [0, -2]:
             field[i + 1][6 * k] = -2
-            print(4)
+            
     for i in range(1, 6 * n):
         for j in range(1, 6 * k):
             if field[i][j + 1] in [0, -2] and field[i + 1][j] in [0, -2] and field[i][j - 1] in [0, -2] and \
@@ -225,14 +234,22 @@ def level_cut():
     if [n - 1, k - 1] not in reachable:
         field[6 * n][6 * k] = -1
 
+    for room in reachable:
+        if loot_chance > rnd(1,100):
+            rndid = rnd(1,4)
+            entities += [entity(room, rndid)]
+            field[room[0] + 3][room[1] + 3] = -1
+
     return room_counter
 
-
+entities = []
 name = 'scene.cfg'
 percentage = 90
 n = 8
 k = 8
 cutting_edge = 80
+loot_chance = 20
+ent_types = 4
 
 create_floor()
 exit()

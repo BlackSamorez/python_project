@@ -8,7 +8,7 @@ canv = tk.Canvas(root, bg='grey')
 canv.pack(fill=tk.BOTH, expand=1)
 
 def start():
-    os.system('graphics.py')
+    os.system('python3 graphics.py')
 
 
 def draw_tutorial():
