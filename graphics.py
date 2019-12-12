@@ -409,8 +409,8 @@ class minimap():
 
 
 if __name__ == "__main__":
-	os.system('/map_generator/auto_generator.py')
-	s = Scene('map_generator/scene.cfg')
+	os.system('auto_generator.py')
+	s = Scene('scene.cfg')
 	a = atan2(s.player.look.x, s.player.look.y)
 	s.entities += [Entity(s.player.position + Vector2D(1, 1))]
 	s.entities[0].id = 0

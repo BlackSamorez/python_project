@@ -14,7 +14,7 @@ def start():
 def draw_tutorial():
     pass
 
-def read_scene(filename='map_generator/scene.cfg'):
+def read_scene(filename='scene.cfg'):
     with open(filename, 'r') as file:
         s = file.read()
     fw, fh = [int(x) for x in s.split('\n')[0].split(' ')]
