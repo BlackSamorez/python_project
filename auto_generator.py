@@ -248,7 +248,7 @@ percentage = 90
 n = 8
 k = 8
 cutting_edge = 80
-loot_chance = 80
+loot_chance = 30
 ent_types = 4
 
 create_floor()

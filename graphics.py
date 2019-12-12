@@ -81,20 +81,41 @@ class Entity:
 		self.id = idef
 		self.color = [0, 100, 100]
 		self.lh = 1
+		self.a = 0
+		self.altitude = 0.5
 
-	def oscillate(self):
-		pass
+	def rotate(self):
+		if self.a < 36:
+			self.a += 1
+		else:
+			self.a = 0
+		self.width = 0.1 * cos(self.a / 36 * 2 * pi) + 0.4 
+
+		root.after(50, self.rotate)
+
 
 	def difference(self):
+		if self.id == 1:
+			self.height = 0.3
+			self.width = 0.75 * cos(self.a / 360 * 2 * pi)
+			self.color = [200, 0, 0]
+			self.widespread = 0.3
+			self.altitude = 0.2
+
 		if self.id == 2:
 			self.height = 0.3
-			self.width = 0.75
-			self.color = [0, 205, 75]
+			self.width = 0.75 * cos(self.a / 360 * 2 * pi)
+			self.color = [200, 0, 0]
 			self.widespread = 0.6
+			self.altitude = 0.2
+
 		elif self.id == 3:
 			self.height = 0.8
-			self.width = 0.25
+			self.width = 0.25 * cos(self.a / 360 * 2 * pi)
 			self.color = [225, 155, 75]
+			self.altitude = 0.4
+
+
 
 
 # map object
@@ -380,6 +401,7 @@ if __name__ == "__main__":
 	s.entities[len(s.entities) - 1].id = 0
 	for ent in s.entities:
 		ent.difference()
+		ent.rotate()
 	frame = 0
 	begin = time.time()
 	canv.bind("<KeyPress>", move_detect)
@@ -388,6 +410,7 @@ if __name__ == "__main__":
 	show_minimap = 0
 	mnmp.draw()
 	time1 = 0
+
 
 	while True:
 		frame += 1
