@@ -60,6 +60,11 @@ def v_norm(x):
 def v_rot(x):
 	return Vector2D(-x.y, x.x)
 
+class inv():
+	def __init__(self, idef):
+		self.id = idef
+
+
 
 # what we control
 class Player:
@@ -81,9 +86,10 @@ class Player:
 
 	def heal(self):
 		for loot in self.equip:
-			if loot == 1:
-				loot = -1
+			if loot.id == 1:
+				loot.id = -1
 				self.hpoints = 100
+				break
 
 
 class Entity:
@@ -205,7 +211,7 @@ class Scene:
 			if (ent.__name__ == 'Target') and (phi < pi / 32) and (phi > - pi / 32):
 				self.targets += [ent]
 			if ent.__name__ == 'Entity' and ent.id == 1 and ent.dist < 0.3:
-				self.player.equip += [1]
+				self.player.equip += [inv(1)]
 				ent.id = -1
 
 
@@ -477,7 +483,12 @@ class health:
         canv.create_rectangle(x, y, x + 360, y + 90, fill='#00acb4')
         canv.create_rectangle(x + 30, y + 30, x + 330, y + 60, fill='#10455b')
         canv.create_rectangle(x+ 30, y+30, x + 30 + self.hpoints * 3, y + 60, fill='red')
-        canv.create_text(x + 90, y + 15, text='HEALTH', font=('Courier', 25), fill='white')
+        word = 0
+        for i in player.equip:
+        	if i.id == 1:
+        		word += 1
+        canv.create_text(x + 200, y + 15, text=word, font=('Courier', 18), fill='white')
+        #canv.create_text(x + 90, y + 15, text='HEALTH', font=('Courier', 25), fill='white')
 
 # main body
 
