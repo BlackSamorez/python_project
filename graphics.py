@@ -218,6 +218,68 @@ class Scene:
 				ent.id = -1
 
 
+	def get_lh(self, x_):
+			player = self.player
+			to = v_norm(
+				v_rot(player.look) * sin(self.camx * x_ / self.width - 0.5) + player.look * cos(
+					self.camx * x_ / self.width - 0.5))
+			ok_walls = []
+			x = player.position
+			deltaDistX = abs(1 / to.x)
+			deltaDistY = abs(1 / to.y)
+			mapX = int(x.x)
+			mapY = int(x.y)
+			if to.x < 0:
+				stepX = -1
+				sideDistX = (x.x - int(x.x)) * deltaDistX;
+			else:
+				stepX = 1
+				sideDistX = (-(x.x - int(x.x)) + 1) * deltaDistX;
+			if to.y < 0:
+				stepY = -1
+				sideDistY = (x.y - int(x.y)) * deltaDistY;
+			else:
+				stepY = 1
+				sideDistY = (-(x.y - int(x.y)) + 1) * deltaDistY;
+			hit = -1
+			side = 0
+			while hit == -1:
+				if sideDistX < sideDistY:
+					sideDistX += deltaDistX
+					mapX += stepX
+					side = 0
+				else:
+					sideDistY += deltaDistY
+					mapY += stepY
+					side = 1
+				if mapX < 0 or mapX >= self.fw or mapY < 0 or mapY >= self.fh:
+					break
+				if self.field[mapX][mapY] != -1:
+					hit = self.field[mapX][mapY]
+					if self.field[mapX][mapY] == 0:
+						self.field[mapX][mapY] = 1
+
+			if hit != -1:
+				if side == 0:
+					perpWallDist = (mapX - x.x + (1 - stepX) / 2) / to.x;
+				else:
+					perpWallDist = (mapY - x.y + (1 - stepY) / 2) / to.y;
+				lh = int(1 / (perpWallDist + 0.0001) / self.camy * self.height / 2)
+				if perpWallDist > 1:
+					brightness = abs(to.x if side == 0 else to.y) / sqrt(perpWallDist)
+				else:
+					brightness = abs(to.x if side == 0 else to.y)
+
+				if (side == 0):
+					wallX = x.y + perpWallDist * to.y;
+				else:
+					wallX = x.x + perpWallDist * to.x;
+				#wallX = wallX - int(wallX)
+				#brightness = brightness * sqrt(abs(cos(x_ * self.renderwidth / (self.width / 2) + pi / 2)))
+
+				return lh
+
+
 
 	def display_cubes(self):
 		canv.delete("all")
@@ -291,6 +353,7 @@ class Scene:
 					wallX = x.x + perpWallDist * to.x;
 				wallX = wallX - int(wallX)
 				brightness = brightness * sqrt(abs(cos(x_ * self.renderwidth / (self.width / 2) + pi / 2)))
+				coss = abs(to.x if side == 0 else to.y)
 
 				self.entity_trace[x_] += [Entity(Vector2D(0,0), 238)]
 				self.entity_trace[x_][-1].dist = perpWallDist
@@ -302,14 +365,22 @@ class Scene:
 						if ent.dist < 30:
 							if ent.id == 238:
 								if hit in [0, 1]:
-									for i in range(len(self.edges) - 1):
-										canv.create_rectangle(x_ * self.renderwidth - self.renderwidth / 2,
-															  self.height // 2 - lh +2 * lh * (self.edges[i] / 100),
-															  x_ * self.renderwidth + self.renderwidth / 2,
-															  self.height / 2 - lh + 2 * lh * (self.edges[i + 1] / 100),
-															  fill=_from_rgb([int(self.color[i][0] * brightness),
-																			  int(self.color[i][1] * brightness),
-																			  int(self.color[i][2] * brightness)]), outline="")
+									step = self.renderwidth / int(1 +  0.5 / (coss))
+									print(int(1 + 1 / (coss)))
+									for n in range(int(1 + 1 / (coss))):
+										lh = self.get_lh(x_ * self.renderwidth - self.renderwidth / 2 + n * step)
+
+										for i in range(len(self.edges) - 1):
+											canv.create_rectangle(x_ * self.renderwidth - self.renderwidth / 2 + n * step,
+																  self.height // 2 - lh +2 * lh * (self.edges[i] / 100),
+																  x_ * self.renderwidth - self.renderwidth / 2 + (n + 1) * step,
+																  self.height / 2 - lh + 2 * lh * (self.edges[i + 1] / 100),
+																  fill=_from_rgb([int(self.color[i][0] * brightness),
+																				  int(self.color[i][1] * brightness),
+																				  int(self.color[i][2] * brightness)]), outline="")
+
+
+
 								if hit == 2:
 									canv.create_rectangle(x_ * self.renderwidth - self.renderwidth / 2,
 														  self.height // 2 - lh / 2,
