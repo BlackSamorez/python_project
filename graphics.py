@@ -144,6 +144,8 @@ class Target(Entity):
 			root.after(50, self.death)
 		else:
 			self.id = -1
+	def attack(self, player):
+		self.position -= ((self.position - player.position) * 0.01)
 
 
 # map object
@@ -181,7 +183,9 @@ class Scene:
 		self.targets = []
 
 	def target_entities(self):
+		self.being_targeted = []
 		self.targets = []
+		self.being_targeted = []
 		self.entity_trace = [[Entity()] for x in range(self.width // self.renderwidth)]
 		for ent in self.entities:
 			phi = atan2((ent.position.y - self.player.position.y), (ent.position.x - self.player.position.x)) - atan2(
@@ -277,6 +281,7 @@ class Scene:
 				self.entity_trace[x_] += [Entity(Vector2D(0,0), 238)]
 				self.entity_trace[x_][-1].dist = perpWallDist
 				self.entity_trace[x_] = sorted(self.entity_trace[x_], key = return_dist, reverse = True)
+				walled = False
 				
 				for ent in self.entity_trace[x_]:
 					if ent.id != -1:
@@ -285,7 +290,7 @@ class Scene:
 								if hit in [0, 1]:
 									for i in range(len(self.edges) - 1):
 										canv.create_rectangle(x_ * self.renderwidth - self.renderwidth / 2,
-															  self.height // 2 - lh + 2 * lh * (self.edges[i] / 100),
+															  self.height // 2 - lh +2 * lh * (self.edges[i] / 100),
 															  x_ * self.renderwidth + self.renderwidth / 2,
 															  self.height / 2 - lh + 2 * lh * (self.edges[i + 1] / 100),
 															  fill=_from_rgb([int(self.color[i][0] * brightness),
@@ -298,12 +303,18 @@ class Scene:
 														  self.height / 2 + lh / 2, fill=_from_rgb(
 											[int(self.bc[0] * brightness), int(self.bc[1] * brightness),
 											 int(self.bc[2] * brightness)]), outline="")
+								walled = True
 							else:
 								canv.create_rectangle(x_ * self.renderwidth - self.renderwidth // 2,
 													  self.height // 2 - ent.lh // 2,
 													  x_ * self.renderwidth + self.renderwidth // 2,
 													  self.height // 2 + ent.lh // 2, fill=_from_rgb(
 										[int(ent.color[0]), int(ent.color[1]), int(ent.color[2])]), outline="")
+								if walled and ent not in self.being_targeted and ent.__name__ == 'Target':
+									self.being_targeted += [ent]
+									print(1)
+
+		print(0)
 
 		H.draw()
 		canv.update()
@@ -403,6 +414,11 @@ def shoot(event):
 	global s
 	s.player.fire(s.targets)
 
+def attack():
+	global s
+	for tar in s.being_targeted:
+		tar.attack(s.player)
+
 
 class minimap():
 	def __init__(self, scene, scenewidth=0, sceneheight=0):
@@ -496,5 +512,6 @@ if __name__ == "__main__":
 			s.target_entities()
 			s.display_cubes()
 			player_move()
+			attack()
 
 	root.mainloop()
