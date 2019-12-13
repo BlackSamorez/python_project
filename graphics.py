@@ -154,6 +154,8 @@ class Target(Entity):
 			self.id = -1
 	def attack(self, player):
 		self.position -= ((self.position - player.position) * 0.01)
+		if self.dist < 0.7:
+			player.hpoints -= 1
 
 
 # map object
@@ -487,8 +489,14 @@ class health:
         for i in player.equip:
         	if i.id == 1:
         		word += 1
-        canv.create_text(x + 200, y + 15, text=word, font=('Courier', 18), fill='white')
+        line = 'First aid:  ' + str(word)
+        canv.create_text(x + 200, y + 15, text=line, font=('Courier', 18), fill='white')
         #canv.create_text(x + 90, y + 15, text='HEALTH', font=('Courier', 25), fill='white')
+    def dead(self):
+    	if self.hpoints < 0:
+    		return True
+    	else:
+    		return False
 
 # main body
 
@@ -533,6 +541,10 @@ if __name__ == "__main__":
 			s.display_cubes()
 			player_move()
 			attack()
+
+			if H.dead():
+				break
+
 
 
 	root.mainloop()

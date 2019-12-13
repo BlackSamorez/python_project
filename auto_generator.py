@@ -30,13 +30,22 @@ def exit():
                     file.write(' ')
                     file.write(str(field[i][j]))
         for ent in entities:
-            file.write('\n')
-            file.write('entity ')
-            file.write(str(6 * ent.position[0] + 3))
-            file.write(' ')
-            file.write(str(6 * ent.position[1] + 3))
-            file.write(' ')
-            file.write(str(ent.id))
+            if ent.id != 238:
+                file.write('\n')
+                file.write('entity ')
+                file.write(str(6 * ent.position[0] + 3))
+                file.write(' ')
+                file.write(str(6 * ent.position[1] + 3))
+                file.write(' ')
+                file.write(str(ent.id))
+            else:
+                file.write('\n')
+                file.write('target ')
+                file.write(str(ent.position[0]))
+                file.write(' ')
+                file.write(str(ent.position[1]))
+                file.write(' ')
+                file.write(str(2))
 
 
 def import_rooms():
@@ -130,9 +139,10 @@ def create_floor():
 
 
 def level_cut():
-    global field, name, n, k, player, dx, dy, percentage, subfield, boss_n, boss_k, p_n, p_k, cutting_edge, ent_chance, ent_types, entities
+    global field, name, n, k, player, dx, dy, percentage, subfield, boss_n, boss_k, p_n, p_k, cutting_edge, ent_chance, ent_types, entities, tar_chance
     reachable = []
     marked = []
+    targets = []
     room_counter = 0
     for i in range(n):
         for j in range(k):
@@ -236,9 +246,16 @@ def level_cut():
 
     for room in reachable:
         if loot_chance > rnd(1,100):
-            rndid = rnd(1,4)
+            rndid = 1
             entities += [entity(room, rndid)]
             field[6 * room[0] + 3][6 * room[1] + 3] = -1
+
+    for room in reachable:
+        for l in range(6):
+            for m in range(6):
+                if field[6 * room[0] + l][6 * room[1] + m] == -1:
+                    if tar_chance > rnd(0, 100):
+                        entities += [entity([6 * room[0] + l, 6 * room[1] + m], 238)]
 
     return room_counter
 
@@ -248,8 +265,9 @@ percentage = 90
 n = 8
 k = 8
 cutting_edge = 80
-loot_chance = 60
+loot_chance = 10
 ent_types = 4
+tar_chance = 3
 
 create_floor()
 exit()
