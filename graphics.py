@@ -1,11 +1,12 @@
 from math import *
 import time
+from PIL import ImageTk, Image
 import tkinter as tk
 import os
 
 root = tk.Tk()
 fr = tk.Frame(root)
-root.geometry('1920x1080')
+root.geometry('1280x720')
 canv = tk.Canvas(root, bg='grey')
 canv.pack(fill=tk.BOTH, expand=1)
 
@@ -162,8 +163,8 @@ class Target(Entity):
 class Scene:
 	def __init__(self, filename=None):
 		self.renderwidth = 20
-		self.width = 1920
-		self.height = 1080
+		self.width = 1280
+		self.height = 720
 		self.camx = pi / 3
 		self.camy = self.camx * 480 / 640
 		self.entities = []
@@ -502,7 +503,7 @@ class health:
 
 
 if __name__ == "__main__":
-	os.system('python3 auto_generator.py')
+	#os.system('auto_generator.py')
 	s = Scene('scene.cfg')
 	a = atan2(s.player.look.x, s.player.look.y)
 	s.entities += [Entity(s.player.position + Vector2D(1, 1))]
@@ -545,6 +546,8 @@ if __name__ == "__main__":
 			if H.dead():
 				break
 
-
+	im_10 = Image.open("you_died.png")
+	image_10 = ImageTk.PhotoImage(im_10)
+	canv.create_image(640, 360, image=image_10)
 
 	root.mainloop()

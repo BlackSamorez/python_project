@@ -8,11 +8,15 @@ canv = tk.Canvas(root, bg='grey')
 canv.pack(fill=tk.BOTH, expand=1)
 
 def start():
-    os.system('python3 graphics.py')
+    os.system('graphics.py')
 
 
 def draw_tutorial():
-    os.system('python3 tutorial.py')
+    os.system('tutorial.py')
+
+def reroll():
+    os.system("auto_generator.py")
+    os.system("menu.py")
 
 def draw_map(filename='scene.cfg'):
     with open(filename, 'r') as file:
@@ -47,9 +51,11 @@ def draw_map(filename='scene.cfg'):
                 )
 
 
+
 pilImage = Image.open("hell.jpg")
 bg = ImageTk.PhotoImage(pilImage)
 canv.create_image(700, 210, image=bg)
+draw_map("scene.cfg")
 im_start = ImageTk.PhotoImage(file="start.png")
 start_button = tk.Button(
     root, image=im_start,
@@ -59,7 +65,7 @@ start_button.place(x=647, y=40)
 im_reroll = ImageTk.PhotoImage(file="reroll.png")
 map_button = tk.Button(
     root, image=im_reroll,
-    command=draw_map
+    command=reroll
 )
 map_button.place(x=590, y=90)
 im_tutorial = ImageTk.PhotoImage(file="tutorial.png")
