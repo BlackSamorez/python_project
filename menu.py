@@ -14,7 +14,7 @@ def start():
 def draw_tutorial():
     pass
 
-def read_scene(filename='scene.cfg'):
+def draw_map(filename='scene.cfg'):
     with open(filename, 'r') as file:
         s = file.read()
     fw, fh = [int(x) for x in s.split('\n')[0].split(' ')]
@@ -24,11 +24,7 @@ def read_scene(filename='scene.cfg'):
         if command == 'brick':
             x, y, tid = [int(x) for x in args.split(' ')]
             field[x][y] = tid
-    return field
 
-
-def draw_map():
-    global field
     scale = 1
     a = 500
     n = len(field)
@@ -51,34 +47,26 @@ def draw_map():
                 )
 
 
-global field
-field = read_scene()
 pilImage = Image.open("hell.jpg")
 bg = ImageTk.PhotoImage(pilImage)
 canv.create_image(700, 210, image=bg)
+im_start = ImageTk.PhotoImage(file="start.png")
 start_button = tk.Button(
-    root, text='Start',
-    width=15, height=2,
-    bg='grey', fg='black',
-    activeforeground='red', activebackground='grey',
+    root, image=im_start,
     command=start
 )
-start_button.place(x=650, y=40)
+start_button.place(x=647, y=40)
+im_reroll = ImageTk.PhotoImage(file="reroll.png")
 map_button = tk.Button(
-    root, text='Reroll map',
-    width=15, height=2,
-    bg='grey', fg='black',
-    activeforeground='red', activebackground='grey',
+    root, image=im_reroll,
     command=draw_map
 )
-map_button.place(x=650, y=90)
+map_button.place(x=590, y=90)
+im_tutorial = ImageTk.PhotoImage(file="tutorial.png")
 tutorial_button = tk.Button(
-    root, text='Tutorial',
-    width=15, height=2,
-    bg='grey', fg='black',
-    activeforeground='red', activebackground='grey',
+    root, image=im_tutorial,
     command=draw_tutorial
 )
-tutorial_button.place(x=650, y=140)
+tutorial_button.place(x=617, y=140)
 
 root.mainloop()
