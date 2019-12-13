@@ -70,7 +70,7 @@ class Player:
 		self.right = 0
 		self.rot = 0
 		self.ammo = 100
-		self.healt = 100
+		self.hpoints = 50
 		self.equip = []
 	
 	def fire(self, targets):
@@ -79,8 +79,11 @@ class Player:
 
 
 
-	def apt(self, event):
-		pass
+	def heal(self):
+		for loot in self.equip:
+			if loot == 1:
+				loot = -1
+				self.hpoints = 100
 
 
 class Entity:
@@ -97,27 +100,26 @@ class Entity:
 		self.__name__ = 'Entity'
 
 	def rotate(self):
-		if self.a < 36:
-			self.a += 1
-		else:
-			self.a = 0
-		self.width = 0.1 * cos(self.a / 36 * 2 * pi) + 0.4 
-
-		root.after(50, self.rotate)
+		if self.id == 1:
+			if self.a < 36:
+				self.a += 1
+			else:
+				self.a = 0
+			self.width = 0.1 * cos(self.a / 36 * 2 * pi) + 0.4 
+			root.after(50, self.rotate)
 
 
 	def difference(self):
 		if self.id == 1:
 			self.height = 0.3
-			self.width = 0.75 * cos(self.a / 360 * 2 * pi)
+			self.width = 0.3 * cos(self.a / 360 * 2 * pi)
 			self.color = [200, 0, 0]
-			self.widespread = 0.3
 			self.altitude = 0.2
 
 		if self.id == 2:
 			self.height = 0.3
 			self.width = 0.75 * cos(self.a / 360 * 2 * pi)
-			self.color = [200, 0, 0]
+			self.color = [200, 200, 0]
 			self.widespread = 0.6
 			self.altitude = 0.2
 
@@ -202,6 +204,9 @@ class Scene:
 						self.entity_trace[x_ - deltaphi + i] += [ent]
 			if (ent.__name__ == 'Target') and (phi < pi / 32) and (phi > - pi / 32):
 				self.targets += [ent]
+			if ent.__name__ == 'Entity' and ent.id == 1 and ent.dist < 0.3:
+				self.player.equip += [1]
+				ent.id = -1
 
 
 
@@ -312,11 +317,11 @@ class Scene:
 										[int(ent.color[0]), int(ent.color[1]), int(ent.color[2])]), outline="")
 								if walled and ent not in self.being_targeted and ent.__name__ == 'Target':
 									self.being_targeted += [ent]
-									print(1)
+									
 
-		print(0)
+		
 
-		H.draw()
+		H.draw(self.player)
 		canv.update()
 
 
@@ -381,6 +386,9 @@ def move_undetect(event):
 
 	if event.char == '=':
 		hplus = 0
+
+	if event.char == 'h':
+		s.player.heal()
 
 
 # move itself
@@ -463,8 +471,9 @@ class minimap():
 
 class health:
     def __init__(self):
-        self.hpoints = 10
-    def draw(self):
+        self.hpoints = 50
+    def draw(self, player):
+        self.hpoints = player.hpoints
         canv.create_rectangle(x, y, x + 360, y + 90, fill='#00acb4')
         canv.create_rectangle(x + 30, y + 30, x + 330, y + 60, fill='#10455b')
         canv.create_rectangle(x+ 30, y+30, x + 30 + self.hpoints * 3, y + 60, fill='red')
@@ -481,7 +490,7 @@ if __name__ == "__main__":
 	s.entities[len(s.entities) - 1].id = 0
 	for ent in s.entities:
 		ent.difference()
-		#ent.rotate()
+		ent.rotate()
 	frame = 0
 	begin = time.time()
 	canv.bind("<space>", shoot)
@@ -513,5 +522,6 @@ if __name__ == "__main__":
 			s.display_cubes()
 			player_move()
 			attack()
+
 
 	root.mainloop()

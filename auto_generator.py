@@ -31,7 +31,7 @@ def exit():
                     file.write(str(field[i][j]))
         for ent in entities:
             file.write('\n')
-            file.write('target ')
+            file.write('entity ')
             file.write(str(6 * ent.position[0] + 3))
             file.write(' ')
             file.write(str(6 * ent.position[1] + 3))
