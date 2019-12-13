@@ -305,13 +305,13 @@ class Scene:
 													  self.height // 2 + ent.lh // 2, fill=_from_rgb(
 										[int(ent.color[0]), int(ent.color[1]), int(ent.color[2])]), outline="")
 
-
+		H.draw()
 		canv.update()
 
 
 # start moving
 def move_detect(event):
-	global player, show_minimap
+	global player, show_minimap, hminus, hplus
 	if event.char == 'w':
 		s.player.forward = 1
 
@@ -333,10 +333,16 @@ def move_detect(event):
 	if event.char == 'm':
 		show_minimap = 1
 
+	if event.char == '-':
+		hminus -= 1
+
+	if event.char == '=':
+		hplus += 1
+
 
 # stop moving
 def move_undetect(event):
-	global player, a, show_minimap
+	global player, a, show_minimap, hminus, hplus
 
 	if event.char == 'w':
 		s.player.forward = 0
@@ -358,6 +364,12 @@ def move_undetect(event):
 
 	if event.char == 'm':
 		show_minimap = 0
+
+	if event.char == '-':
+		hminus = 0
+
+	if event.char == '=':
+		hplus = 0
 
 
 # move itself
@@ -392,11 +404,10 @@ def shoot(event):
 	s.player.fire(s.targets)
 
 
-
 class minimap():
 	def __init__(self, scene, scenewidth=0, sceneheight=0):
 		self.war_mist = 0
-		self.scale = 2
+		self.scale = 1
 		self.a = 500
 		self.player = scene.player
 		self.field = scene.field
@@ -405,32 +416,43 @@ class minimap():
 		self.dx = self.a / self.n * self.scale
 		self.dy = self.a / self.k * self.scale
 		self.obzor = scene.camy
+		self.const = 1150
 
 	def draw(self):
 		for i in range(self.n):
 			for j in range(self.k):
 				if self.war_mist:
-					if self.field[i][j] not in [-1, 0]:
-						canv.create_rectangle(i * self.dx, j * self.dy, (i + 1) * self.dx, (j + 1) * self.dy,
-											  fill='red')
+					if self.field[i][j] != -1 and self.field[i][j] != 0:
+						canv.create_rectangle(i * self.dx + self.const, j * self.dy, (i + 1) * self.dx + self.const,
+											  (j + 1) * self.dy, fill='#00acb4')
 					if self.field[i][j] == 2:
-						canv.create_rectangle(i * self.dx, j * self.dy, (i + 1) * self.dx, (j + 1) * self.dy,
-											  fill='blue')
+						canv.create_rectangle(i * self.dx + self.const, j * self.dy, (i + 1) * self.dx + self.const,
+											  (j + 1) * self.dy, fill='red')
 				else:
-					if self.field[i][j] != -1:
-						canv.create_rectangle(i * self.dx, j * self.dy, (i + 1) * self.dx, (j + 1) * self.dy,
-											  fill='red')
+					if self.field[i][j] != -1:	
+						canv.create_rectangle(i * self.dx + self.const, j * self.dy, (i + 1) * self.dx + self.const,
+											  (j + 1) * self.dy, fill='#00acb4')
 					if self.field[i][j] == 2:
-						canv.create_rectangle(i * self.dx, j * self.dy, (i + 1) * self.dx, (j + 1) * self.dy,
-											  fill='blue')
+						canv.create_rectangle(i * self.dx + self.const, j * self.dy, (i + 1) * self.dx + self.const,
+											  (j + 1) * self.dy, fill='red')
 
-		canv.create_line(self.player.position.x * self.a * self.scale / self.n,
+
+		canv.create_line(self.const + self.player.position.x * self.a * self.scale / self.n,
 						 self.player.position.y * self.a * self.scale / self.k,
-						 self.player.position.x * self.a * self.scale / self.n + self.player.look.x * 10 * self.scale,
+						 self.const + self.player.position.x * self.a * self.scale / self.n + self.player.look.x * 10 * self.scale,
 						 self.player.position.y * self.a * self.scale / self.k + self.player.look.y * 10 * self.scale,
-						 width=5, fill='blue')
+						 width=5, fill='red')
 		canv.update()
 
+
+class health:
+    def __init__(self):
+        self.hpoints = 10
+    def draw(self):
+        canv.create_rectangle(x, y, x + 360, y + 90, fill='#00acb4')
+        canv.create_rectangle(x + 30, y + 30, x + 330, y + 60, fill='#10455b')
+        canv.create_rectangle(x+ 30, y+30, x + 30 + self.hpoints * 3, y + 60, fill='red')
+        canv.create_text(x + 90, y + 15, text='HEALTH', font=('Courier', 25), fill='white')
 
 # main body
 
@@ -453,6 +475,8 @@ if __name__ == "__main__":
 	show_minimap = 0
 	mnmp.draw()
 	time1 = 0
+	hplus, hminus, x, y = 0, 0, 0, 0
+	H = health()
 
 
 	while True:
@@ -465,6 +489,10 @@ if __name__ == "__main__":
 			mnmp.draw()
 			time.sleep(0.5)
 		else:
+			if hplus:
+				H.hpoints += 1
+			if hminus:
+				H.hpoints -= 1
 			s.target_entities()
 			s.display_cubes()
 			player_move()
