@@ -12,7 +12,7 @@ def start():
 
 
 def draw_tutorial():
-    pass
+    os.system('tutorial.py')
 
 def draw_map(filename='scene.cfg'):
     with open(filename, 'r') as file:
