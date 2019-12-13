@@ -162,7 +162,7 @@ class Target(Entity):
 # map object
 class Scene:
 	def __init__(self, filename=None):
-		self.renderwidth = 20
+		self.renderwidth = 40
 		self.width = 1280
 		self.height = 720
 		self.camx = pi / 3
@@ -365,9 +365,9 @@ class Scene:
 						if ent.dist < 30:
 							if ent.id == 238:
 								if hit in [0, 1]:
-									step = self.renderwidth / int(1 +  0.5 / (coss))
-									print(int(1 + 1 / (coss)))
-									for n in range(int(1 + 1 / (coss))):
+									step = self.renderwidth / int(1 +  2 / (coss))
+									#print(int(1 + 2 / (coss)))
+									for n in range(int(1 + 2 / (coss))):
 										lh = self.get_lh(x_ * self.renderwidth - self.renderwidth / 2 + n * step)
 
 										for i in range(len(self.edges) - 1):
