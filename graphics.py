@@ -11,14 +11,14 @@ canv = tk.Canvas(root, bg='grey')
 canv.pack(fill=tk.BOTH, expand=1)
 
 
-def return_dist(ent):
+def return_dist(ent): # Возвращает расстояние до объекта, используется для сортировки видимых объектов по расстоянию
 	return ent.dist
 
-def _from_rgb(rgb):  # HEX from rgb
+def _from_rgb(rgb):  # возвращает HEX, нужный для tkinter из списка gb формата
 	return "#{:02x}{:02x}{:02x}".format(rgb[0], rgb[1], rgb[2])
 
 
-class Vector2D:  # vectors
+class Vector2D:  #2D вектора со сложением, вычитанием, делением на число, скалярным произведением, псевдовекторным произв и возвратом строки
 	def __init__(self, x, y):
 		self.x = x
 		self.y = y
@@ -45,68 +45,70 @@ class Vector2D:  # vectors
 		return '(' + str(self.x) + ', ' + str(self.y) + ')'
 
 
-# Vector operations
+# Операции на векторах:
+#Квадрат
 def v_abs2(x):
 	return x * x
 
-
+# Модуль
 def v_abs(x):
 	return sqrt(x * x)
 
-
+#нормировка
 def v_norm(x):
 	return x / v_abs(x)
 
-
+#поворот на 90гр
 def v_rot(x):
 	return Vector2D(-x.y, x.x)
 
+#класс объекта в инвентаре
 class inv():
 	def __init__(self, idef):
 		self.id = idef
 
 
 
-# what we control
+# Класс pc 
 class Player:
 	def __init__(self, look, position):
-		self.look = look
-		self.position = position
-		self.forward = 0
+		self.look = look # куда смотрит
+		self.position = position #координата
+		self.forward = 0 #состояния движения
 		self.right = 0
 		self.rot = 0
-		self.ammo = 100
-		self.hpoints = 50
-		self.equip = []
+		self.ammo = 100 #запас боеприпасов (не используется)
+		self.hpoints = 50 #запас hp
+		self.equip = [] #инвентарь
 	
-	def fire(self, targets):
-		for tar in targets:
+	def fire(self, targets): #стрельба по противникам
+		for tar in targets: #список противников, которые умрут
 			tar.death()
 
 
 
-	def heal(self):
-		for loot in self.equip:
-			if loot.id == 1:
+	def heal(self): #приминение аптечки
+		for loot in self.equip: 
+			if loot.id == 1: #1 - аптечка
 				loot.id = -1
 				self.hpoints = 100
 				break
 
 
-class Entity:
+class Entity: # Класс сущностей: аптечки, parent противников, etc
 	def __init__(self, position=Vector2D(0, 0), idef = -1):
-		self.position = position
-		self.dist = 0.5
+		self.position = position #coordinates (assumed Vector2D)
+		self.dist = 0.5 #distance to player
 		self.height = 1
 		self.width = 0.5
 		self.id = idef
 		self.color = [0, 100, 100]
-		self.lh = 1
-		self.a = 0
-		self.altitude = 0.5
-		self.__name__ = 'Entity'
+		self.lh = 1 #height in pixels on screen, depends on relative position
+		self.a = 0 
+		self.altitude = 0.5 #not used
+		self.__name__ = 'Entity' #name
 
-	def rotate(self):
+	def rotate(self): #oscillationc, visual effect
 		if self.id == 1:
 			if self.a < 36:
 				self.a += 1
@@ -116,63 +118,63 @@ class Entity:
 			root.after(50, self.rotate)
 
 
-	def difference(self):
-		if self.id == 1:
+	def difference(self): #differentiate based on id
+		if self.id == 1: #first aid kit
 			self.height = 0.3
 			self.width = 0.3 * cos(self.a / 360 * 2 * pi)
 			self.color = [200, 0, 0]
 			self.altitude = 0.2
 
-		if self.id == 2:
+		if self.id == 2: #supplementary
 			self.height = 0.3
 			self.width = 0.75 * cos(self.a / 360 * 2 * pi)
 			self.color = [200, 200, 0]
 			self.widespread = 0.6
 			self.altitude = 0.2
 
-		elif self.id == 3:
+		elif self.id == 3: #supplementary
 			self.height = 0.8
 			self.width = 0.25 * cos(self.a / 360 * 2 * pi)
 			self.color = [225, 155, 75]
 			self.altitude = 0.4
 
 
-class Target(Entity):
+class Target(Entity): #Enemies
 	def __init__(self, position=Vector2D(0, 0), idef = -1):
 		super(Target, self).__init__(position, idef)
 		self.__name__ = 'Target'
-		self.breath = 10
+		self.breath = 10 #how fast they die
 
-	def death(self):
-		if self.breath > 0:
+	def death(self): 
+		if self.breath > 0: 
 			self.breath -= 1
-			self.height = 0.9 * self.height
+			self.height = 0.9 * self.height #they shrink and disappear
 			self.width = 0.9 * self.width
 			for c in range(3):
 				self.color[c] = self.color[c] * 0.9
 			root.after(50, self.death)
 		else:
-			self.id = -1
+			self.id = -1 # id = -1 to be ignored by the programm
 	def attack(self, player):
-		self.position -= ((self.position - player.position) * 0.01)
+		self.position -= ((self.position - player.position) * 0.01) #they get closer and kill you
 		if self.dist < 0.7:
 			player.hpoints -= 1
 
 
-# map object
-class Scene:
+
+class Scene: #the game itself 
 	def __init__(self, filename=None):
 		self.renderwidth = 40
-		self.width = 1280
-		self.height = 720
-		self.camx = pi / 3
-		self.camy = self.camx * 480 / 640
-		self.entities = []
+		self.width = 1280 #x screen resolution
+		self.height = 720 #y screen resolution
+		self.camx = pi / 3 #horizontal FOW
+		self.camy = self.camx * self.height / self.width #vertical FOW
+		self.entities = [] #scene contains all entities
 		with open(filename, 'r') as file:
-			s = file.read()
-		self.fw, self.fh = [int(x) for x in s.split('\n')[0].split(' ')]
-		self.field = [[-1] * self.fh for x in range(self.fw)]
-		for line in s.split('\n')[1:]:
+			s = file.read() # reading scene.cfg containig map, entitties and targets
+		self.fw, self.fh = [int(x) for x in s.split('\n')[0].split(' ')] #map size x and y
+		self.field = [[-1] * self.fh for x in range(self.fw)] #sqared map, -1 = air, 0 = wall, 2 = portal
+		for line in s.split('\n')[1:]: 
 			command, args = line.split(' ', 1)
 			if command == 'brick':
 				x, y, tid = [int(x) for x in args.split(' ')]
@@ -186,39 +188,37 @@ class Scene:
 			if command == 'target':
 				x, y, idef = [int(x) for x in args.split(' ')]
 				self.entities += [Target(Vector2D(x, y), idef)]
-		self.lines = 3
-		self.color = [[] * 3 for x in range(self.lines)]
-		self.edges = [0, 0, 0]
-		self.bc = [255, 255, 255]
-		self.entity_trace = [[Entity()] for x in range(self.width // self.renderwidth)]
-		self.targets = []
+		self.lines = 3 #nuber of horizontal lines making a wall
+		self.color = [[] * self.lines for x in range(self.lines)] #list of colors for each line
+		self.edges = [0] * self.lines # line edge positions (0 assumed)
+		self.bc = [255, 255, 255] #portal color
+		self.entity_trace = [[Entity()] for x in range(self.width // self.renderwidth)] #list of entities on each ray
+		self.targets = [] #list of targets
 
 	def target_entities(self):
-		self.being_targeted = []
-		self.targets = []
-		self.being_targeted = []
-		self.entity_trace = [[Entity()] for x in range(self.width // self.renderwidth)]
+		self.being_targeted = [] #list of targets that see you
+		self.targets = [] #list of targets that you see
+		self.entity_trace = [[Entity()] for x in range(self.width // self.renderwidth)] #list of entities on each ray casted
 		for ent in self.entities:
 			phi = atan2((ent.position.y - self.player.position.y), (ent.position.x - self.player.position.x)) - atan2(
-				self.player.look.y, self.player.look.x)
-			if phi < self.camx / 2 and phi > - self.camx:
-				x_ = int((self.camx / 2 + phi) / self.camx * self.width) // self.renderwidth
+				self.player.look.y, self.player.look.x) #angle to entity
+			if phi < self.camx / 2 and phi > - self.camx: #if visible
+				x_ = int((self.camx / 2 + phi) / self.camx * self.width) // self.renderwidth #position on screen
 				ent.dist = sqrt(
 					(ent.position.x - self.player.position.x) ** 2 + (ent.position.y - self.player.position.y) ** 2)
 				ent.lh = int(ent.height / (ent.dist + 0.0001) / self.camy * self.height / 2)
-				# canv.create_rectangle(x_ * self.renderwidth - self.renderwidth // 2, self.height // 2 - lh , x_ * self.renderwidth + self.renderwidth // 2, self.height // 2 + lh , fill = _from_rgb([int(ent.color[0]), int(ent.color[1]), int(ent.color[2])]))
 				deltaphi = int((atan2(ent.width, ent.dist) / self.camx) * self.width / self.renderwidth) // 2
 				for i in range(2 * deltaphi):
 					if (x_ - deltaphi + i) > -1 and (x_ - deltaphi + i) < (self.width // self.renderwidth):
-						self.entity_trace[x_ - deltaphi + i] += [ent]
+						self.entity_trace[x_ - deltaphi + i] += [ent] #if visible - make all corresponding rays hit it
 			if (ent.__name__ == 'Target') and (phi < pi / 32) and (phi > - pi / 32):
-				self.targets += [ent]
+				self.targets += [ent] #angles within wich targert will die
 			if ent.__name__ == 'Entity' and ent.id == 1 and ent.dist < 0.3:
 				self.player.equip += [inv(1)]
-				ent.id = -1
+				ent.id = -1 #pick first aid kit up and make it disappear
 
 
-	def get_lh(self, x_):
+	def get_lh(self, x_): #get block height in pixels on screen (geometry inside(TM))
 			player = self.player
 			to = v_norm(
 				v_rot(player.look) * sin(self.camx * x_ / self.width - 0.5) + player.look * cos(
@@ -281,10 +281,10 @@ class Scene:
 
 
 
-	def display_cubes(self):
+	def display_cubes(self): #not only cubes actually, also targets and entities
 		canv.delete("all")
 
-		canv.create_rectangle(0, self.height // 2, self.width, self.height, fill='black')
+		canv.create_rectangle(0, self.height // 2, self.width, self.height, fill='black') #floor
 
 		self.edges = [0, 20, 80, 100]
 		self.color[0] = [87, 31, 0]
@@ -292,9 +292,7 @@ class Scene:
 		self.color[2] = [87, 31, 0]
 		self.bc = [255, 0, 0]
 
-		x_old = -1
 		for x_ in range(int(self.width // self.renderwidth)):
-			debug = (x_ == self.width // 2)
 
 			player = self.player
 			to = v_norm(
@@ -355,20 +353,20 @@ class Scene:
 				brightness = brightness * sqrt(abs(cos(x_ * self.renderwidth / (self.width / 2) + pi / 2)))
 				coss = abs(to.x if side == 0 else to.y)
 
-				self.entity_trace[x_] += [Entity(Vector2D(0,0), 238)]
-				self.entity_trace[x_][-1].dist = perpWallDist
-				self.entity_trace[x_] = sorted(self.entity_trace[x_], key = return_dist, reverse = True)
-				walled = False
+				self.entity_trace[x_] += [Entity(Vector2D(0,0), 238)] #flase entity, actually a wall (to sort wall with entities)
+				self.entity_trace[x_][-1].dist = perpWallDist 
+				self.entity_trace[x_] = sorted(self.entity_trace[x_], key = return_dist, reverse = True) #from closest to farthest
+				walled = False #havent found a wall yet
 				
 				for ent in self.entity_trace[x_]:
 					if ent.id != -1:
-						if ent.dist < 30:
-							if ent.id == 238:
-								if hit in [0, 1]:
-									step = self.renderwidth / int(1 +  2 / (coss))
+						if ent.dist < 30: #dont see farther
+							if ent.id == 238: #if wall
+								if hit in [0, 1]: #a wall or id = 1 (not used (yet?))
+									step = self.renderwidth / int(1 +  2 / (coss)) #render step
 									#print(int(1 + 2 / (coss)))
-									for n in range(int(1 + 2 / (coss))):
-										lh = self.get_lh(x_ * self.renderwidth - self.renderwidth / 2 + n * step)
+									for n in range(int(1 + 2 / (coss))): #for each step
+										lh = self.get_lh(x_ * self.renderwidth - self.renderwidth / 2 + n * step) #get height for each step
 
 										for i in range(len(self.edges) - 1):
 											canv.create_rectangle(x_ * self.renderwidth - self.renderwidth / 2 + n * step,
@@ -377,31 +375,31 @@ class Scene:
 																  self.height / 2 - lh + 2 * lh * (self.edges[i + 1] / 100),
 																  fill=_from_rgb([int(self.color[i][0] * brightness),
 																				  int(self.color[i][1] * brightness),
-																				  int(self.color[i][2] * brightness)]), outline="")
+																				  int(self.color[i][2] * brightness)]), outline="") #create part of a wall
 
 
 
-								if hit == 2:
+								if hit == 2: #a portal
 									canv.create_rectangle(x_ * self.renderwidth - self.renderwidth / 2,
 														  self.height // 2 - lh / 2,
 														  x_ * self.renderwidth + self.renderwidth / 2,
 														  self.height / 2 + lh / 2, fill=_from_rgb(
 											[int(self.bc[0] * brightness), int(self.bc[1] * brightness),
 											 int(self.bc[2] * brightness)]), outline="")
-								walled = True
+								walled = True #we have hitten a wall
 							else:
 								canv.create_rectangle(x_ * self.renderwidth - self.renderwidth // 2,
 													  self.height // 2 - ent.lh // 2,
 													  x_ * self.renderwidth + self.renderwidth // 2,
 													  self.height // 2 + ent.lh // 2, fill=_from_rgb(
-										[int(ent.color[0]), int(ent.color[1]), int(ent.color[2])]), outline="")
-								if walled and ent not in self.being_targeted and ent.__name__ == 'Target':
+										[int(ent.color[0]), int(ent.color[1]), int(ent.color[2])]), outline="") #part of entity
+								if walled and ent not in self.being_targeted and ent.__name__ == 'Target': #if we see it after after wall - they see us
 									self.being_targeted += [ent]
 									
 
 		
 
-		H.draw(self.player)
+		H.draw(self.player) #draw hp bar
 		canv.update()
 
 
@@ -467,11 +465,11 @@ def move_undetect(event):
 	if event.char == '=':
 		hplus = 0
 
-	if event.char == 'h':
+	if event.char == 'h': #use first aid kit
 		s.player.heal()
 
 
-# move itself
+# move itself (separated for synchronisation of movement)
 def player_move():
 	global player, a
 	if s.player.forward == 1 and s.field[floor(s.player.position.x + s.player.look.x * 0.3)][
@@ -498,17 +496,17 @@ def player_move():
 		a += 5 / 180 * pi
 		s.player.look = Vector2D(cos(a), sin(a))
 
-def shoot(event):
+def shoot(event): #shoot
 	global s
 	s.player.fire(s.targets)
 
-def attack():
+def attack(): #make targets kill us
 	global s
 	for tar in s.being_targeted:
 		tar.attack(s.player)
 
 
-class minimap():
+class minimap(): #minimap
 	def __init__(self, scene, scenewidth=0, sceneheight=0):
 		self.war_mist = 0
 		self.scale = 1
@@ -549,7 +547,7 @@ class minimap():
 		canv.update()
 
 
-class health:
+class health(): #a health bar
     def __init__(self):
         self.hpoints = 50
     def draw(self, player):
@@ -565,37 +563,37 @@ class health:
         canv.create_text(x + 200, y + 15, text=line, font=('Courier', 18), fill='white')
         #canv.create_text(x + 90, y + 15, text='HEALTH', font=('Courier', 25), fill='white')
     def dead(self):
-    	if self.hpoints < 0:
+    	if self.hpoints < 0: #you died
     		return True
     	else:
-    		return False
+    		return False 
 
 # main body
 
 
 if __name__ == "__main__":
 	#os.system('auto_generator.py')
-	s = Scene('scene.cfg')
-	a = atan2(s.player.look.x, s.player.look.y)
-	s.entities += [Entity(s.player.position + Vector2D(1, 1))]
-	s.entities[len(s.entities) - 1].id = 0
+	s = Scene('scene.cfg') #our scene
+	a = atan2(s.player.look.x, s.player.look.y) #player look angle
+	#s.entities += [Entity(s.player.position + Vector2D(1, 1))]
+	#s.entities[len(s.entities) - 1].id = 0
 	for ent in s.entities:
-		ent.difference()
-		ent.rotate()
+		ent.difference() #make em' different
+		ent.rotate() #begin Infinite Rotation (part 7 best)
 	frame = 0
-	begin = time.time()
-	canv.bind("<space>", shoot)
-	canv.bind("<KeyPress>", move_detect)
-	canv.bind("<KeyRelease>", move_undetect)
-	mnmp = minimap(s)
-	show_minimap = 0
+	begin = time.time() #the beggining of time
+	canv.bind("<space>", shoot) #shoot on spacebar
+	canv.bind("<KeyPress>", move_detect) #walk, rotate, map, heal
+	canv.bind("<KeyRelease>", move_undetect) #unwalk, unrotate
+	mnmp = minimap(s) #our minimap
+	show_minimap = 0 #do we see it
 	mnmp.draw()
-	time1 = 0
+	time1 = -1 #last step time
 	hplus, hminus, x, y = 0, 0, 0, 0
-	H = health()
+	H = health() #our healthbar
 
 
-	while True:
+	while True: #Да, нормальные люди так не делают, знаю. Может позже исправлю это
 		frame += 1
 		if frame % 60 == 0:
 			#print(60 / (time.time() - time1))
@@ -615,10 +613,10 @@ if __name__ == "__main__":
 			attack()
 
 			if H.dead():
-				break
+				break #смерть
 
 	im_10 = Image.open("you_died.png")
 	image_10 = ImageTk.PhotoImage(im_10)
-	canv.create_image(640, 360, image=image_10)
+	canv.create_image(640, 360, image=image_10) #Ученые узнали что люди видят после смерти...
 
 	root.mainloop()
