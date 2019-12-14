@@ -3,6 +3,7 @@ import time
 from PIL import ImageTk, Image
 import tkinter as tk
 import os
+import sys
 
 root = tk.Tk()
 fr = tk.Frame(root)
@@ -617,6 +618,8 @@ if __name__ == "__main__":
 
 	im_10 = Image.open("you_died.png")
 	image_10 = ImageTk.PhotoImage(im_10)
-	canv.create_image(640, 360, image=image_10) #Ученые узнали что люди видят после смерти...
+	canv.create_image(int(s.width / 2), int(s.height / 2), image=image_10) #Ученые узнали что люди видят после смерти...
+	if sys.platform.startswith('linux'):
+		os.system('firefox https://www.youtube.com/watch?v=dQw4w9WgXcQ^C')
 
 	root.mainloop()

@@ -3,7 +3,7 @@ import time
 from random import randrange as rnd,choice
 import tkinter as tk
 
-
+#Названия коррелируют с названиями в graphics, сначала прочтите комментарии к нему
 class entity():
 	def __init__(self, position = [0, 0], idef = -1):
 		self.position = position
