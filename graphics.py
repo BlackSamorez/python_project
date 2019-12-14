@@ -85,10 +85,13 @@ class Player:
         self.ammo = 100  # запас боеприпасов (не используется)
         self.hpoints = 50  # запас hp
         self.equip = []  # инвентарь
+        self.killcount = 0
 
     def fire(self, targets):  # стрельба по противникам
         for tar in targets:  # список противников, которые умрут
-            tar.death()
+            if tar.id != -1:    
+                tar.death()
+                self.killcount += 1
 
     def heal(self):  # приминение аптечки
         for loot in self.equip:
@@ -364,7 +367,7 @@ class Scene:  # the game itself
                     if ent.id != -1:
                         if ent.dist < 30:  # dont see farther
                             if ent.id == 238:  # if wall
-                                if hit in [0, 1]:  # a wall or id = 1 (not used (yet?))
+                                if hit in [0, 1, 2]:  # a wall or id = 1 (not used (yet?))
                                     step = self.renderwidth / int(1 + 2 / (coss))  # render step
                                     # print(int(1 + 2 / (coss)))
                                     for n in range(int(1 + 2 / (coss))):  # for each step
@@ -382,13 +385,13 @@ class Scene:  # the game itself
                                                                 int(self.color[i][2] * brightness)]),
                                                 outline="")  # create part of a wall
 
-                                if hit == 2:  # a portal
+                                '''if hit == 2:  # a portal
                                     canv.create_rectangle(x_ * self.renderwidth - self.renderwidth / 2,
                                                           self.height // 2 - lh / 2,
                                                           x_ * self.renderwidth + self.renderwidth / 2,
                                                           self.height / 2 + lh / 2, fill=_from_rgb(
                                             [int(self.bc[0] * brightness), int(self.bc[1] * brightness),
-                                             int(self.bc[2] * brightness)]), outline="")
+                                             int(self.bc[2] * brightness)]), outline="")'''
                                 walled = True  # we have hitten a wall
                             else:
                                 canv.create_rectangle(x_ * self.renderwidth - self.renderwidth // 2,
@@ -562,7 +565,7 @@ class health():  # a health bar
         for i in player.equip:
             if i.id == 1:
                 word += 1
-        line = 'First aid:  ' + str(word)
+        line = 'First aid: ' + str(word) + ' kills: ' + str(player.killcount)
         canv.create_text(x + 200, y + 15, text=line, font=('Courier', 18), fill='white')
 
     # canv.create_text(x + 90, y + 15, text='HEALTH', font=('Courier', 25), fill='white')
