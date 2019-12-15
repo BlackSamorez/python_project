@@ -551,22 +551,22 @@ class minimap():  # minimap
             for j in range(self.k):
                 if self.war_mist:
                     if self.field[i][j] != -1 and self.field[i][j] != 0:
-                        canv.create_rectangle(i * self.dx + self.const, j * self.dy, (i + 1) * self.dx + self.const,
+                        canv.create_rectangle(-380 + i * self.dx + self.const, j * self.dy, -380 + (i + 1) * self.dx + self.const,
                                               (j + 1) * self.dy, fill='#00acb4')
                     if self.field[i][j] == 2:
-                        canv.create_rectangle(i * self.dx + self.const, j * self.dy, (i + 1) * self.dx + self.const,
+                        canv.create_rectangle(-380 + i * self.dx + self.const, j * self.dy, -380 + (i + 1) * self.dx + self.const,
                                               (j + 1) * self.dy, fill='red')
                 else:
                     if self.field[i][j] != -1:
-                        canv.create_rectangle(i * self.dx + self.const, j * self.dy, (i + 1) * self.dx + self.const,
+                        canv.create_rectangle(-380 + i * self.dx + self.const, j * self.dy, -380 + (i + 1) * self.dx + self.const,
                                               (j + 1) * self.dy, fill='#00acb4')
                     if self.field[i][j] == 2:
-                        canv.create_rectangle(i * self.dx + self.const, j * self.dy, (i + 1) * self.dx + self.const,
+                        canv.create_rectangle(-380 + i * self.dx + self.const, j * self.dy, -380 + (i + 1) * self.dx + self.const,
                                               (j + 1) * self.dy, fill='red')
 
-        canv.create_line(self.const + self.player.position.x * self.a * self.scale / self.n,
+        canv.create_line(-380 + self.const + self.player.position.x * self.a * self.scale / self.n,
                          self.player.position.y * self.a * self.scale / self.k,
-                         self.const + self.player.position.x * self.a * self.scale / self.n + self.player.look.x * 10 * self.scale,
+                         -380 + self.const + self.player.position.x * self.a * self.scale / self.n + self.player.look.x * 10 * self.scale,
                          self.player.position.y * self.a * self.scale / self.k + self.player.look.y * 10 * self.scale,
                          width=5, fill='red')
         canv.update()
@@ -586,9 +586,9 @@ class health():  # a health bar
             if i.id == 1:
                 word += 1
         line = 'First aid: ' + str(word) + ' kills: ' + str(player.killcount)
-        canv.create_text(x + 200, y + 15, text=line, font=('Courier', 18), fill='white')
+        canv.create_text(x + 200, y + 15, text=line, font=('Courier', 18), fill='black')
 
-    # canv.create_text(x + 90, y + 15, text='HEALTH', font=('Courier', 25), fill='white')
+    # canv.create_text(x + 90, y + 15, text='HEALTH', font=('Courier', 25), fill='black')
     def dead(self):
         if self.hpoints < 0:  # you died
             return True
@@ -599,7 +599,6 @@ class health():  # a health bar
 
 
 if __name__ == "__main__":
-    # os.system('auto_generator.py')
     s = Scene('scene.cfg')  # our scene
     a = atan2(s.player.look.x, s.player.look.y)  # player look angle
     # s.entities += [Entity(s.player.position + Vector2D(1, 1))]
