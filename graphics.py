@@ -640,7 +640,7 @@ if __name__ == "__main__":
             if H.dead():
                 break  # смерть
 
-    im_10 = Image.open("you_died.png")
+    im_10 = Image.open("images/you_died.png")
     image_10 = ImageTk.PhotoImage(im_10)
     canv.create_image(int(s.width / 2), int(s.height / 2),
                       image=image_10)  # Ученые узнали что люди видят после смерти...

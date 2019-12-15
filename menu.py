@@ -21,7 +21,7 @@ def reroll():
     main()
 
 
-def draw_map(filename='scene.cfg'):
+def draw_map(filename='images/scene.cfg'):
     with open(filename, 'r') as file:
         s = file.read()
     fw, fh = [int(x) for x in s.split('\n')[0].split(' ')]
@@ -65,22 +65,22 @@ def main():
     root.mainloop()
 
 
-im_start = ImageTk.PhotoImage(file="start_new.png")
+im_start = ImageTk.PhotoImage(file="images/start_new.png")
 start_button = tk.Button(
     root, image=im_start,
     command=start
 )
-im_reroll = ImageTk.PhotoImage(file="reroll_map_new.png")
+im_reroll = ImageTk.PhotoImage(file="images/reroll_map_new.png")
 map_button = tk.Button(
     root, image=im_reroll,
     command=reroll
 )
-im_tutorial = ImageTk.PhotoImage(file="tutorial_new.png")
+im_tutorial = ImageTk.PhotoImage(file="images/tutorial_new.png")
 tutorial_button = tk.Button(
     root, image=im_tutorial,
     command=draw_tutorial
 )
-pilImage = Image.open("hell.jpg")
+pilImage = Image.open("images/hell.jpg")
 bg = ImageTk.PhotoImage(pilImage)
 
 main()
