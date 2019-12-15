@@ -1,6 +1,8 @@
 import tkinter as tk
 from PIL import ImageTk, Image
 import os
+import subprocess
+import sys
 
 root = tk.Tk()
 root.geometry('1280x720')
@@ -9,15 +11,27 @@ canv.pack(fill=tk.BOTH, expand=1)
 
 
 def start():
-    os.system('graphics.py')
+    if sys.platform.startswith('linux'):
+        os.system('python3 graphics.py')
+    else:
+        theproc = subprocess.Popen([sys.executable, "graphics.py"])
+        theproc.communicate()
 
 
 def draw_tutorial():
-    os.system('tutorial.py')
+    if sys.platform.startswith('linux'):
+        os.system('python3 tutorial.py')
+    else:
+        theproc = subprocess.Popen([sys.executable, "tutorial.py"])
+        theproc.communicate()
 
 
 def reroll():
-    os.system("auto_generator.py")
+    if sys.platform.startswith('linux'):
+        os.system("python3 auto_generator.py")
+    else:
+        theproc = subprocess.Popen([sys.executable, "auto_generator.py"])
+        theproc.communicate()
     main()
 
 
