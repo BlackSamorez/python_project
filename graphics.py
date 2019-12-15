@@ -404,6 +404,11 @@ class Scene:  # the game itself
                                     self.being_targeted += [ent]
 
         H.draw(self.player)  # draw hp bar
+        canv.create_polygon(0.8 * self.width, self.height, 0.65 * self.width, 0.8 * self.height, 0.65 * self.width, 0.6 * self.height, self.width, 0.95 * self.height, self.width, self.height,  fill = 'red', outline = 'black')
+        canv.create_polygon(self.width, 0.95 * self.height, 0.65 * self.width, 0.6 * self.height, 0.75 * self.width, 0.6 * self.height, self.width, 0.75 * self.height,  fill = 'red', outline = 'black')
+        canv.create_polygon(0.8 * self.width, self.height, 0.75 * self.width, (1 - 0.2 / 3) * self.height, 0.72 * self.width, self.height, fill = 'grey', outline = 'black')
+
+
         canv.update()
 
 
@@ -504,7 +509,22 @@ def player_move():
 def shoot(event):  # shoot
     global s
     s.player.fire(s.targets)
+    shoot_animation()
+    
+def shoot_animation():
+    global s
+    ray = canv.create_line(s.width / 2, s.height / 2, s.width * 0.65, s.height * 0.65, fill = 'green', width = 10)
+    canv.update()
+    root.after(100, shoot_unanimation)
 
+def shoot_unanimation():
+    global s
+    try:
+    	canv.delete(ray)
+    	canv.update()
+    except:
+    	pass
+    
 
 def attack():  # make targets kill us
     global s
