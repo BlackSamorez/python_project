@@ -258,16 +258,17 @@ def level_cut():  # cut a level
 
     return room_counter
 
+def main():
+    global entities, name, percentage, n, k, cutting_edge, loot_chance, tar_chance
+    entities = []
+    name = 'scene.cfg'
+    percentage = 90
+    n = 8  # rooms by x
+    k = 8  # rooms by y
+    cutting_edge = 80
+    loot_chance = 10  # loot chance - chance of entity spawning in the middle of a room
+    # ent_types = 4
+    tar_chance = 3  # tar_chance - chance of target spawning in air in reachable room
 
-entities = []
-name = 'scene.cfg'
-percentage = 90
-n = 8  # rooms by x
-k = 8  # rooms by y
-cutting_edge = 80
-loot_chance = 10  # loot chance - chance of entity spawning in the middle of a room
-# ent_types = 4
-tar_chance = 3  # tar_chance - chance of target spawning in air in reachable room
-
-create_floor()
-exit()
+    create_floor()
+    exit()

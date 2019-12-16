@@ -5,20 +5,12 @@ import tkinter as tk
 from PIL import ImageTk, Image
 from math import *
 
-root = tk.Tk()
-fr = tk.Frame(root)
-root.geometry('1280x720')
-canv = tk.Canvas(root, bg='grey')
-canv.pack(fill=tk.BOTH, expand=1)
-
-
 def return_dist(ent):  # Возвращает расстояние до объекта, используется для сортировки видимых объектов по расстоянию
     return ent.dist
 
 
 def _from_rgb(rgb):  # возвращает HEX, нужный для tkinter из списка gb формата
     return "#{:02x}{:02x}{:02x}".format(rgb[0], rgb[1], rgb[2])
-
 
 class Vector2D:  # 2D вектора со сложением, вычитанием, делением на число, скалярным произведением, псевдовекторным произв и возвратом строки
     def __init__(self, x, y):
@@ -480,7 +472,7 @@ def move_undetect(event):
 
 # move itself (separated for synchronisation of movement)
 def player_move():
-    global player, a
+    global s, a
     if s.player.forward == 1 and s.field[floor(s.player.position.x + s.player.look.x * 0.3)][
         floor(s.player.position.y + s.player.look.y * 0.3)] == -1:
         s.player.position = s.player.position + s.player.look * 0.2
@@ -598,7 +590,8 @@ class health():  # a health bar
         # main body
 
 
-if __name__ == "__main__":
+def main():
+    global s, a, frame, show_minimap, hplus, hminus, x, y, time1, H
     s = Scene('scene.cfg')  # our scene
     a = atan2(s.player.look.x, s.player.look.y)  # player look angle
     # s.entities += [Entity(s.player.position + Vector2D(1, 1))]
@@ -644,7 +637,8 @@ if __name__ == "__main__":
     image_10 = ImageTk.PhotoImage(im_10)
     canv.create_image(int(s.width / 2), int(s.height / 2),
                       image=image_10)  # Ученые узнали что люди видят после смерти...
-    if sys.platform.startswith('linux'):
-        os.system('firefox https://www.youtube.com/watch?v=dQw4w9WgXcQ^C')
+    canv.update()
+    #if sys.platform.startswith('linux'):
+    #    os.system('firefox https://www.youtube.com/watch?v=dQw4w9WgXcQ^C')
+    time.sleep(2)
 
-    root.mainloop()

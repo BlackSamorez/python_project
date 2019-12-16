@@ -3,35 +3,30 @@ from PIL import ImageTk, Image
 import os
 import subprocess
 import sys
+import graphics
+import auto_generator
 
 root = tk.Tk()
+fr = tk.Frame(root)
 root.geometry('1280x720')
 canv = tk.Canvas(root, bg='grey')
 canv.pack(fill=tk.BOTH, expand=1)
 
+graphics.root = root
+graphics.canv = canv
+
 
 def start():
-    if sys.platform.startswith('linux'):
-        os.system('python3 graphics.py')
-    else:
-        theproc = subprocess.Popen([sys.executable, "graphics.py"])
-        theproc.communicate()
-
-
-def draw_tutorial():
-    if sys.platform.startswith('linux'):
-        os.system('python3 tutorial.py')
-    else:
-        theproc = subprocess.Popen([sys.executable, "tutorial.py"])
-        theproc.communicate()
+    canv.delete("all")
+    start_button.place(x=-100, y=-100)
+    map_button.place(x=-100, y=-100)
+    tutorial_button.place(x=-100, y=-100)
+    graphics.main()
+    main()
 
 
 def reroll():
-    if sys.platform.startswith('linux'):
-        os.system("python3 auto_generator.py")
-    else:
-        theproc = subprocess.Popen([sys.executable, "auto_generator.py"])
-        theproc.communicate()
+    auto_generator.main()
     main()
 
 
@@ -67,7 +62,6 @@ def draw_map(filename='images/scene.cfg'):
                     fill='blue'
                 )
 
-
 def main():
     canv.delete("all")
     canv.create_image(640, 360, image=bg)
@@ -75,9 +69,17 @@ def main():
     start_button.place(x=620, y=10)
     map_button.place(x=575, y=70)
     tutorial_button.place(x=600, y=122)
+    got_button.place(x=-100, y=-100)
 
     root.mainloop()
 
+def tutorial():
+    start_button.place(x=-100, y=-100)
+    map_button.place(x=-100, y=-100)
+    tutorial_button.place(x=-100, y=-100)
+    canv.delete("all")
+    canv.create_image(440, 360, image=sas)
+    got_button.place(x=600, y=320)
 
 im_start = ImageTk.PhotoImage(file="images/start_new.png")
 start_button = tk.Button(
@@ -92,9 +94,16 @@ map_button = tk.Button(
 im_tutorial = ImageTk.PhotoImage(file="images/tutorial_new.png")
 tutorial_button = tk.Button(
     root, image=im_tutorial,
-    command=draw_tutorial
+    command=tutorial
+)
+im_got = ImageTk.PhotoImage(file="images/got_it.png")
+got_button = tk.Button(
+    root, image=im_got,
+    command=main
 )
 pilImage = Image.open("images/hell.jpg")
 bg = ImageTk.PhotoImage(pilImage)
+pilImage1 = Image.open("images/text.png")
+sas = ImageTk.PhotoImage(pilImage1)
 
 main()
