@@ -263,12 +263,12 @@ def main():
     entities = []
     name = 'scene.cfg'
     percentage = 90
-    n = 8  # rooms by x
-    k = 8  # rooms by y
+    n = 16  # rooms by x
+    k = 16  # rooms by y
     cutting_edge = 80
     loot_chance = 10  # loot chance - chance of entity spawning in the middle of a room
     # ent_types = 4
-    tar_chance = 3  # tar_chance - chance of target spawning in air in reachable room
+    tar_chance = 30  # tar_chance - chance of target spawning in air in reachable room
 
     create_floor()
     exit()

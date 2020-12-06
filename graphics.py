@@ -161,7 +161,7 @@ class Target(Entity):  # Enemies
 
 class Scene:  # the game itself
     def __init__(self, filename=None):
-        self.renderwidth = 40
+        self.renderwidth = 10
         self.width = 1280  # x screen resolution
         self.height = 720  # y screen resolution
         self.camx = pi / 3  # horizontal FOW
@@ -439,31 +439,31 @@ def move_detect(event):
 def move_undetect(event):
     global player, a, show_minimap, hminus, hplus
 
-    if event.char == 'w':
+    if event.keysym == 'w':
         s.player.forward = 0
 
-    if event.char == 'a':
+    if event.keysym == 'a':
         s.player.right = 0
 
-    if event.char == 's':
+    if event.keysym == 's':
         s.player.forward = 0
 
-    if event.char == 'd':
+    if event.keysym == 'd':
         s.player.right = 0
 
-    if event.char == 'q':
+    if event.keysym == 'q':
         s.player.rot = 0
 
-    if event.char == 'e':
+    if event.keysym == 'e':
         s.player.rot = 0
 
-    if event.char == 'm':
+    if event.keysym == 'm':
         show_minimap = 0
 
-    if event.char == '-':
+    if event.keysym == '-':
         hminus = 0
 
-    if event.char == '=':
+    if event.keysym == '=':
         hplus = 0
 
     if event.char == 'h':  # use first aid kit
@@ -614,7 +614,7 @@ def main():
     while True:  # Да, нормальные люди так не делают, знаю. Может позже исправлю это
         frame += 1
         if frame % 60 == 0:
-            # print(60 / (time.time() - time1))
+            print(60 / (time.time() - time1))
             time1 = time.time()
 
         if show_minimap:
